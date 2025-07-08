@@ -1,0 +1,144 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.container{
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+.room-section{
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.room-title{
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    color: #1f2937;
+}
+.room-subtitle{
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+.empty-state{
+    text-align: center;
+    color: #6b7280;
+    padding: 3rem;
+}
+.empty-icon{
+    font-size: 5rem;
+    margin-bottom: 1rem;
+}
+.ta-card {
+    background: white;
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.session-card{
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #fdf4ff, #fae8ff);
+    border-radius: 1rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.session-title{
+    font-weight: 600;
+    color: #7c3aed;
+    font-size: 1rem;
+}
+.session-time{
+    color: #6b7280;
+    margin-bottom: 1rem;
+}
+.join-btn,
+.start-btn,
+.create-meeting-btn,
+.availablity-btn,
+.-btn{
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 2rem;
+}
+
+.create-meeting-btn{
+    background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+}
+.availablity-btn{
+    background:linear-gradient(135deg, #1dcf4f, #4cc431);
+}
+.form-section{
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 8px -1px rgba(0,0,0,0.2);
+    margin-bottom: 2rem;
+}
+.form-label{
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+.form-input,
+.form-select,
+.form-textarea{
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+}
+.submit-btn{
+    background: linear-gradient(135deg, #d946ef, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.8rem 2rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+.interval-input{
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.modal{
+    background: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    position: relative;
+    max-width: 600px;
+    margin: 4rem auto;
+    z-index: 1000;
+}
+.modal-overlay{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 999;
+}
