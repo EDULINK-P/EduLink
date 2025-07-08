@@ -8,6 +8,7 @@ import authrouter from "./Routes/auth.js";
 import courseRoutes from "./Routes/courses.js";
 import profileRouter from "./Routes/profile.js";
 import zoomRoutes from "./Routes/zoom.js";
+import availabilityRoutes from "./Routes/TAavailability.js";
 
 dotenv.config();
 
@@ -48,5 +49,6 @@ app.use("/auth", authrouter);
 app.use("/courses", courseRoutes);
 app.use("/profile", profileRouter);
 app.use("/api", zoomRoutes);
+app.use("/availability", availabilityRoutes);
 
 app.listen(PORT, () => {});

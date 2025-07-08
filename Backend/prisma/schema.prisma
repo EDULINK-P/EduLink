@@ -17,6 +17,7 @@ model User {
   updatedAt      DateTime         @updatedAt
   userCourse     UserCourse[]
   hostedMeetings ZoomMeeting[]    @relation(name: "UserHostedMeetings")
+  TAAvailability TAAvailability[]
 }
 
 model Course {
@@ -24,6 +25,7 @@ model Course {
   name           String           @unique
   userCourse     UserCourse[]
   ZoomMeetings   ZoomMeeting[]
+  TAAvailability TAAvailability[]
 }
 
 model UserCourse {
@@ -51,5 +53,16 @@ model ZoomMeeting {
   course_id Int
   host      User     @relation("UserHostedMeetings", fields: [host_id], references: [id])
   host_id   Int
+  createdAt DateTime @default(now())
+}
+
+model TAAvailability {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [user_id], references: [id])
+  user_id   Int
+  course    Course   @relation(fields: [course_id], references: [id])
+  course_id Int
+  intervals Json
+  rate      Int
   createdAt DateTime @default(now())
 }
