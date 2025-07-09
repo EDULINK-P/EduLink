@@ -72,4 +72,32 @@ router.get("/meeting/:courseId", async (req, res) => {
   }
 });
 
+router.post("/meeting/:courseId/join", async (req, res) => {
+  const userId = req.session.userId;
+  const courseId = parseInt(req.params.courseId);
+
+  try {
+    const userCourse = await prisma.userCourse.findFirst({
+      where: { user_id: userId, course_id: courseId },
+    });
+    if (userCourse.role === "Student") {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { credit: { increment: 10 } },
+      });
+    }
+    const meetings = await prisma.zoomMeeting.findFirst({
+      where: { course_id: courseId },
+      orderBy: { startTime: "desc" },
+    });
+    if (!meetings) {
+      return res.status(400).json({ error: "Failed to join Zoom meeting" });
+    }
+    res.status(200).json({ success: true, joinUrl: meetings.joinUrl });
+  } catch (error) {
+    console.error("Zoom meeting join error:", error);
+    res.status(500).json({ error: "Failed to join Zoom meeting" });
+  }
+});
+
 export default router;
