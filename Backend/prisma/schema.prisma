@@ -18,6 +18,7 @@ model User {
   userCourse     UserCourse[]
   hostedMeetings ZoomMeeting[]    @relation(name: "UserHostedMeetings")
   TAAvailability TAAvailability[]
+  StudentRequest StudentRequest[]
 }
 
 model Course {
@@ -26,6 +27,7 @@ model Course {
   userCourse     UserCourse[]
   ZoomMeetings   ZoomMeeting[]
   TAAvailability TAAvailability[]
+  StudentRequest StudentRequest[]
 }
 
 model UserCourse {
@@ -65,4 +67,17 @@ model TAAvailability {
   intervals Json
   rate      Int
   createdAt DateTime @default(now())
+}
+
+model StudentRequest {
+  id                Int      @id @default(autoincrement())
+  user              User     @relation(fields: [user_id], references: [id])
+  user_id           Int
+  course            Course   @relation(fields: [course_id], references: [id])
+  course_id         Int
+  intervals         Json
+  sessionsPerWeek   Int
+  maxSessionsPerDay Int
+  weeklyBudget      Int
+  createdAt         DateTime @default(now())
 }

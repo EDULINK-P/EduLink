@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import StudentRequestModal from "../components/studentRequestModal";
 import "../assets/room.css";
 
 function StudentRoom() {
   const { courseId } = useParams();
   const [upcoming, setUpcoming] = useState([]);
   const [availableTAs, setAvailableTAs] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/meeting/${courseId}`, {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `http://localhost:3000/api/meeting/${courseId}`,
+          {
+            credentials: "include",
+          }
+        );
         const data = await res.json();
         setUpcoming(data);
       } catch (err) {
@@ -30,11 +35,13 @@ function StudentRoom() {
           fetch(`http://localhost:3000/student-requests/tas/${courseId}`, {
             credentials: "include",
           }),
-          fetch(`http://localhost:3000/student-requests/credits`, { credentials: "include" }),
+          fetch(`http://localhost:3000/student-requests/credits`, {
+            credentials: "include",
+          }),
         ]);
         const taData = await taRes.json();
         const creditData = await creditRes.json();
-        setAvailableTAs(taData.tas|| []);
+        setAvailableTAs(taData.tas || []);
         setUserCredits(creditData.credits || 0);
       } catch (err) {
         console.error("Error Fetching TAs and Credits", err);
@@ -45,10 +52,13 @@ function StudentRoom() {
 
   const handleJoinMeeting = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/meeting/${courseId}/join`, {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `http://localhost:3000/api/meeting/${courseId}/join`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (res.ok && data.joinUrl) {
         window.open(data.joinUrl, "_blank");
@@ -57,6 +67,20 @@ function StudentRoom() {
       }
     } catch (err) {
       console.error("Error Joining Meeting", err);
+    }
+  };
+
+  const handleSubmitRequest = async (requestData) => {
+    try {
+      const res = await fetch(`http://localhost:3000/student-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestData),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Request failed");
+    } catch (err) {
+      console.error("Error Submitting Request", err);
     }
   };
 
@@ -101,6 +125,14 @@ function StudentRoom() {
       <button className="form-button" onClick={() => setShowModal(true)}>
         Request TA Support
       </button>
+      {showModal && (
+        <StudentRequestModal
+          courseId={courseId}
+          userCredits={userCredits}
+          onClose={() => setShowModal(false)}
+          onSubmit={handleSubmitRequest}
+        />
+      )}
     </div>
   );
 }
