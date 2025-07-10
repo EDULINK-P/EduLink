@@ -1,77 +1,38 @@
-function buildSchedule(
-  sessions,
-  sessionsPerWeek,
-  budget,
-  maxSessionsPerDay = 1
-) {
-  let bestSchedule = null;
+function buildSchedule(sessions) {
+  const results = [];
 
-  function findBestScheduleFromIndex(
-    index,
-    currSchedule,
-    cost,
-    rating,
-    sessionsPerDayMap
-  ) {
-    if (currSchedule.length === sessionsPerWeek) {
-      if (cost <= budget) {
-        if (
-          !bestSchedule ||
-          cost > bestSchedule.totalCost ||
-          (cost === bestSchedule.totalCost && rating > bestSchedule.totalRating)
-        ) {
-          bestSchedule = {
-            sessions: [...currSchedule],
-            totalCost: cost,
-            totalRating: rating,
-          };
-          console.log("New best Schedule");
-          console.log(JSON.stringify(bestSchedule, null, 2));
-        }
-      }
-      return;
-    }
+  function dfs(path, visited) {
+    results.push([...path]);
 
-    if (index >= sessions.length) return;
-
-    for (let i = index; i < sessions.length; i++) {
+    for (let i = 0; i < sessions.length; i++) {
       const session = sessions[i];
-      const day = session.day;
-      const currentCount = sessionsPerDayMap[day] || 0;
+      session.index = i;
 
-      if (currentCount >= maxSessionsPerDay) continue;
+      if (visited.has(i)) continue;
 
-      const sessionRate = Number(session.rate);
-      const sessionRating = Number(session.rating);
-      const updatedCost = cost + sessionRate;
+      visited.add(i);
+      path.push(session);
 
-      if (updatedCost > budget) continue;
+      dfs(path, visited);
 
-      currSchedule.push(session);
-      sessionsPerDayMap[day] = currentCount + 1;
-
-      console.log("\n Recursing with: ");
-      console.log("Index:", i + 1);
-      console.log("Current Schedule:", currSchedule.map((s) => `${s.day} ${s.start}-${s.end} (${s.taId})`));
-      console.log("Cost:", updatedCost);
-      console.log("Rating:", rating + sessionRating);
-      console.log("sessions Per Day:", sessionsPerDayMap);
-      findBestScheduleFromIndex(
-        i + 1,
-        currSchedule,
-        updatedCost,
-        rating + sessionRating,
-        sessionsPerDayMap
-      );
-      currSchedule.pop();
-      sessionsPerDayMap[day]--;
-      if (sessionsPerDayMap[day] === 0) delete sessionsPerDayMap[day];
+      path.pop();
+      visited.delete(i);
     }
   }
 
-  findBestScheduleFromIndex(0, [], 0, 0, {});
+  dfs([], new Set());
 
-  return bestSchedule || { sessions: [], totalCost: 0, totalRating: 0 };
+  for (const combo of results) {
+    // const formatted = combo
+    //   .map((s) => `TA ${s.taId} (${s.day} ${s.start} - ${s.end})`)
+    //   .join(",");
+
+    const formatted = combo
+      .map((s) => `${s.index}`)
+      .join(",");
+    console.log("it has been formatted", formatted);
+  }
+  return results;
 }
 
 export { buildSchedule };
