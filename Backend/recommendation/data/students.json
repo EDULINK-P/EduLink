@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "name": "Student 1",
+    "courseId": 1,
+    "availability": [
+      {
+        "day": "Tuesday",
+        "interval": "14:00 - 17:00"
+      },
+      {
+        "day": "Monday",
+        "interval": "14:00 - 16:00"
+      },
+      {
+        "day": "Saturday",
+        "interval": "16:00 - 19:00"
+      }
+    ],
+    "sessionsPerWeek": 4,
+    "maxSessionsPerDay": 2,
+    "budget": 51
+  }
+]

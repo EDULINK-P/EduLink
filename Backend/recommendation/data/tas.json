@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "name": "TA 1",
+    "courseId": 1,
+    "rate": 15,
+    "rating": "4.1",
+    "availability": [
+      {
+        "day": "Wednesday",
+        "interval": "14:0 - 15:0"
+      },
+      {
+        "day": "Sunday",
+        "interval": "17:0 - 18:0"
+      },
+      {
+        "day": "Monday",
+        "interval": "14:0 - 15:0"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "TA 2",
+    "courseId": 1,
+    "rate": 10,
+    "rating": "4.8",
+    "availability": [
+      {
+        "day": "Wednesday",
+        "interval": "14:0 - 15:0"
+      },
+      {
+        "day": "Sunday",
+        "interval": "14:0 - 15:0"
+      },
+      {
+        "day": "Thursday",
+        "interval": "11:00 - 12:00"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "TA 3",
+    "courseId": 1,
+    "rate": 15,
+    "rating": "3.6",
+    "availability": [
+      {
+        "day": "Wednesday",
+        "interval": "15:0 - 16:0"
+      },
+      {
+        "day": "Monday",
+        "interval": "14:00 - 15:00"
+      },
+      {
+        "day": "Friday",
+        "interval": "11:0 - 12:0"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "TA 4",
+    "courseId": 1,
+    "rate": 24,
+    "rating": "4.0",
+    "availability": [
+      {
+        "day": "Sunday",
+        "interval": "11:0 - 12:0"
+      },
+      {
+        "day": "Thursday",
+        "interval": "09:0 - 10:0"
+      },
+      {
+        "day": "Monday",
+        "interval": "15:00 - 16:00"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "TA 5",
+    "courseId": 1,
+    "rate": 20,
+    "rating": "3.1",
+    "availability": [
+      {
+        "day": "Tuesday",
+        "interval": "13:00 - 14:00"
+      },
+      {
+        "day": "Sunday",
+        "interval": "17:00 - 18:00"
+      },
+      {
+        "day": "Monday",
+        "interval": "15:0 - 16:00"
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "name": "TA 6",
+    "courseId": 1,
+    "rate": 12,
+    "rating": "3.9",
+    "availability": [
+      {
+        "day": "Tuesday",
+        "interval": "11:0 - 12:0"
+      },
+      {
+        "day": "Monday",
+        "interval": "14:0 - 15:0"
+      },
+      {
+        "day": "Sunday",
+        "interval": "12:0 - 13:0"
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "name": "TA 7",
+    "courseId": 1,
+    "rate": 9,
+    "rating": "3.6",
+    "availability": [
+      {
+        "day": "Tuesday",
+        "interval": "14:00 - 15:00"
+      },
+      {
+        "day": "Wednesday",
+        "interval": "09:0 - 10:0"
+      },
+      {
+        "day": "Friday",
+        "interval": "09:00 - 10:00"
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "name": "TA 8",
+    "courseId": 1,
+    "rate": 13,
+    "rating": "3.7",
+    "availability": [
+      {
+        "day": "Sunday",
+        "interval": "17:00 - 18:00"
+      },
+      {
+        "day": "Friday",
+        "interval": "16:00 - 17:00"
+      },
+      {
+        "day": "Thursday",
+        "interval": "14:0 - 15:0"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "name": "TA 9",
+    "courseId": 1,
+    "rate": 19,
+    "rating": "3.4",
+    "availability": [
+      {
+        "day": "Friday",
+        "interval": "10:0 - 11:0"
+      },
+      {
+        "day": "Monday",
+        "interval": "13:00 - 14:00"
+      },
+      {
+        "day": "Tuesday",
+        "interval": "17:0 - 18:0"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "name": "TA 10",
+    "courseId": 1,
+    "rate": 28,
+    "rating": "5.0",
+    "availability": [
+      {
+        "day": "Tuesday",
+        "interval": "17:00 - 18:00"
+      },
+      {
+        "day": "Sunday",
+        "interval": "13:0 - 14:0"
+      },
+      {
+        "day": "Monday",
+        "interval": "13:00 - 14:00"
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "name": "TA 11",
+    "courseId": 1,
+    "rate": 12,
+    "rating": "4.1",
+    "availability": [
+      {
+        "day": "Sunday",
+        "interval": "09:00 - 10:00"
+      },
+      {
+        "day": "Thursday",
+        "interval": "12:0 - 13:0"
+      },
+      {
+        "day": "Wednesday",
+        "interval": "11:00 - 12:00"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "name": "TA 12",
+    "courseId": 1,
+    "rate": 20,
+    "rating": "4.8",
+    "availability": [
+      {
+        "day": "Saturday",
+        "interval": "16:00 - 17:00"
+      },
+      {
+        "day": "Friday",
+        "interval": "15:00 - 16:00"
+      },
+      {
+        "day": "Sunday",
+        "interval": "16:00 - 17:00"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "name": "TA 13",
+    "courseId": 1,
+    "rate": 16,
+    "rating": "4.6",
+    "availability": [
+      {
+        "day": "Monday",
+        "interval": "14:0 - 15:0"
+      },
+      {
+        "day": "Sunday",
+        "interval": "14:00 - 15:00"
+      },
+      {
+        "day": "Thursday",
+        "interval": "11:00 - 12:00"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "name": "TA 14",
+    "courseId": 1,
+    "rate": 6,
+    "rating": "4.5",
+    "availability": [
+      {
+        "day": "Monday",
+        "interval": "16:00 - 17:00"
+      },
+      {
+        "day": "Sunday",
+        "interval": "15:00 - 16:00"
+      },
+      {
+        "day": "Wednesday",
+        "interval": "14:00 - 15:00"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "name": "TA 15",
+    "courseId": 1,
+    "rate": 13,
+    "rating": "4.4",
+    "availability": [
+      {
+        "day": "Saturday",
+        "interval": "18:00 - 19:00"
+      },
+      {
+        "day": "Friday",
+        "interval": "17:00 - 18:00"
+      },
+      {
+        "day": "Monday",
+        "interval": "15:0 - 16:0"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "name": "TA 16",
+    "courseId": 1,
+    "rate": 8,
+    "rating": "4.2",
+    "availability": [
+      {
+        "day": "Wednesday",
+        "interval": "16:0 - 17:0"
+      },
+      {
+        "day": "Sunday",
+        "interval": "09:00 - 10:00"
+      },
+      {
+        "day": "Thursday",
+        "interval": "10:0 - 11:0"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "name": "TA 17",
+    "courseId": 1,
+    "rate": 25,
+    "rating": "4.1",
+    "availability": [
+      {
+        "day": "Monday",
+        "interval": "15:00 - 16:00"
+      },
+      {
+        "day": "Thursday",
+        "interval": "15:0 - 16:0"
+      },
+      {
+        "day": "Wednesday",
+        "interval": "08:0 - 09:0"
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "name": "TA 18",
+    "courseId": 1,
+    "rate": 19,
+    "rating": "3.5",
+    "availability": [
+      {
+        "day": "Monday",
+        "interval": "1500 - 16:00"
+      },
+      {
+        "day": "Thursday",
+        "interval": "16:0 - 17:0"
+      },
+      {
+        "day": "Wednesday",
+        "interval": "15:0 - 16:0"
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "name": "TA 19",
+    "courseId": 1,
+    "rate": 29,
+    "rating": "3.2",
+    "availability": [
+      {
+        "day": "Monday",
+        "interval": "14:00 - 15:00"
+      },
+      {
+        "day": "Thursday",
+        "interval": "11:0 - 12:0"
+      },
+      {
+        "day": "Wednesday",
+        "interval": "11:0 - 12:0"
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "name": "TA 20",
+    "courseId": 1,
+    "rate": 18,
+    "rating": "3.4",
+    "availability": [
+      {
+        "day": "Saturday",
+        "interval": "16:00 - 17:00"
+      },
+      {
+        "day": "Monday",
+        "interval": "14:0 - 15:0"
+      },
+      {
+        "day": "Sunday",
+        "interval": "12:0 - 13:0"
+      }
+    ]
+  }
+]
