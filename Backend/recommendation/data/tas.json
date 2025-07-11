@@ -4,19 +4,19 @@
     "name": "TA 1",
     "courseId": 1,
     "rate": 15,
-    "rating": "4.1",
+    "rating": "4.5",
     "availability": [
       {
-        "day": "Wednesday",
-        "interval": "14:00 - 15:00"
+        "day": "Monday",
+        "interval": "11:00 - 12:00"
       },
       {
-        "day": "Sunday",
-        "interval": "17:00 - 18:00"
+        "day": "Tuesday",
+        "interval": "13:00 - 14:00"
       },
       {
         "day": "Monday",
-        "interval": "14:00 - 15:00"
+        "interval": "10:00 - 11:00"
       }
     ]
   },
@@ -24,20 +24,16 @@
     "id": 2,
     "name": "TA 2",
     "courseId": 1,
-    "rate": 10,
-    "rating": "4.8",
+    "rate": 18,
+    "rating": "4.7",
     "availability": [
       {
-        "day": "Wednesday",
-        "interval": "14:00 - 15:00"
+        "day": "Tuesday",
+        "interval": "15:00 - 16:00"
       },
       {
-        "day": "Sunday",
+        "day": "Tuesday",
         "interval": "14:00 - 15:00"
-      },
-      {
-        "day": "Thursday",
-        "interval": "11:00 - 12:00"
       }
     ]
   },
@@ -45,20 +41,12 @@
     "id": 3,
     "name": "TA 3",
     "courseId": 1,
-    "rate": 15,
-    "rating": "3.6",
+    "rate": 30,
+    "rating": "5.0",
     "availability": [
       {
-        "day": "Wednesday",
-        "interval": "15:00 - 16:00"
-      },
-      {
-        "day": "Monday",
-        "interval": "14:00 - 15:00"
-      },
-      {
-        "day": "Friday",
-        "interval": "11:00 - 12:00"
+        "day": "Tuesday",
+        "interval": "13:00 - 15:00"
       }
     ]
   },
@@ -66,62 +54,29 @@
     "id": 4,
     "name": "TA 4",
     "courseId": 1,
-    "rate": 24,
+    "rate": 10,
     "rating": "4.0",
     "availability": [
       {
-        "day": "Sunday",
-        "interval": "11:00 - 12:00"
+        "day": "Tuesday",
+        "interval": "14:00 - 16:00"
       },
       {
-        "day": "Thursday",
-        "interval": "09:00 - 10:00"
-      },
-      {
-        "day": "Monday",
-        "interval": "15:00 - 16:00"
+        "day": "Tuesday",
+        "interval": "15:00 - 17:00"
       }
     ]
   },
   {
-    "id": 5,
+    "id": 2,
     "name": "TA 5",
     "courseId": 1,
-    "rate": 20,
-    "rating": "3.1",
+    "rate": 15,
+    "rating": "4.2",
     "availability": [
       {
-        "day": "Tuesday",
-        "interval": "13:00 - 14:00"
-      },
-      {
-        "day": "Sunday",
-        "interval": "17:00 - 18:00"
-      },
-      {
-        "day": "Monday",
-        "interval": "15:00 - 16:00"
-      }
-    ]
-  },
-  {
-    "id": 6,
-    "name": "TA 6",
-    "courseId": 1,
-    "rate": 12,
-    "rating": "3.9",
-    "availability": [
-      {
-        "day": "Tuesday",
-        "interval": "11:00 - 12:00"
-      },
-      {
-        "day": "Monday",
-        "interval": "14:00 - 15:00"
-      },
-      {
-        "day": "Sunday",
-        "interval": "12:00 - 13:00"
+        "day": "Friday",
+        "interval": "09:00 - 11:00"
       }
     ]
   }

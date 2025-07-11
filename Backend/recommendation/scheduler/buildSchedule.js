@@ -1,38 +1,57 @@
-function buildSchedule(sessions) {
-  const results = [];
+import { fallbackSchedule } from "./fallbackSchedule.js";
+function buildSchedule(
+  sessions,
+  { sessionsPerWeek, maxSessionsPerDay, budget }
+) {
+  let bestSchedule = null;
 
-  function dfs(path, visited) {
-    results.push([...path]);
+  function dfs(index, path, cost, rating, sessionsPerDayMap) {
+    if (path.length === sessionsPerWeek) {
+      if (cost <= budget) {
+        if (
+          !bestSchedule ||
+          cost > bestSchedule.totalCost ||
+          (cost === bestSchedule.totalCost && rating > bestSchedule.totalRating)
+        ) {
+          bestSchedule = {
+            sessions: [...path],
+            totalCost: cost,
+            totalRating: rating,
+          };
+        }
+      }
+      return;
+    }
 
-    for (let i = 0; i < sessions.length; i++) {
+    if (index >= sessions.length) return;
+
+    for (let i = index; i < sessions.length; i++) {
       const session = sessions[i];
-      session.index = i;
+      const { day, rate, rating: taRating, start, end } = session;
 
-      if (visited.has(i)) continue;
+      if (path.some((s) => s.day === session.day && s.start === session.start))
+        continue;
 
-      visited.add(i);
+      const sessionsToday = sessionsPerDayMap[day] || 0;
+      if (sessionsToday >= maxSessionsPerDay) continue;
+
+      if (cost + rate > budget) continue;
+
       path.push(session);
+      sessionsPerDayMap[day] = sessionsToday + 1;
 
-      dfs(path, visited);
+      dfs(i + 1, path, cost + rate, taRating, sessionsPerDayMap);
 
       path.pop();
-      visited.delete(i);
+      sessionsPerDayMap[day]--;
     }
   }
 
-  dfs([], new Set());
-
-  for (const combo of results) {
-    // const formatted = combo
-    //   .map((s) => `TA ${s.taId} (${s.day} ${s.start} - ${s.end})`)
-    //   .join(",");
-
-    const formatted = combo
-      .map((s) => `${s.index}`)
-      .join(",");
-    console.log("it has been formatted", formatted);
+  dfs(0, [], 0, 0, {});
+  if (!bestSchedule) {
+    bestSchedule = fallbackSchedule(sessions, budget);
   }
-  return results;
+  return bestSchedule;
 }
 
 export { buildSchedule };

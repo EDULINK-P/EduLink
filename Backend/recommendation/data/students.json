@@ -5,20 +5,34 @@
     "courseId": 1,
     "availability": [
       {
-        "day": "Tuesday",
-        "interval": "14:00 - 17:00"
-      },
-      {
         "day": "Monday",
-        "interval": "14:00 - 16:00"
-      },
-      {
-        "day": "Saturday",
-        "interval": "16:00 - 19:00"
+        "interval": "10:00 - 14:00"
       }
     ],
-    "sessionsPerWeek": 4,
+    "sessionsPerWeek": 3,
     "maxSessionsPerDay": 2,
-    "budget": 51
-  }
+    "budget": 20
+  },
+  {
+    "id": 2,
+    "name": "Student 2",
+   "courseId": 1,
+   "availability": [
+     {
+       "day": "Tuesday",
+       "interval": "13:00 - 16:00"
+     },
+     {
+       "day": "Monday",
+       "interval": "10:00 - 12:00"
+     },
+     {
+       "day": "Friday",
+       "interval": "09:00 - 11:00"
+     }
+   ],
+   "sessionsPerWeek": 3,
+   "maxSessionsPerDay": 2,
+   "budget": 60
+ }
 ]
