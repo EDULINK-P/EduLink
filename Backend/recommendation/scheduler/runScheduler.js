@@ -2,7 +2,6 @@ import fs from "fs";
 import path from "path";
 import { generateSessions } from "./generateSessions.js";
 import { buildSchedule } from "./buildSchedule.js";
-import { fallbackSchedule } from "./fallbackSchedule.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
@@ -29,24 +28,8 @@ students.forEach((student) => {
     maxSessionsPerDay: student.maxSessionsPerDay,
     budget: student.budget,
   });
-
-  if (!result) {
-    const fallbackResult = fallbackSchedule(matchedSessions, student.budget);
-    if (fallbackResult) {
-      fs.writeFileSync(
-        path.join(dataDir, "finalSchedules.json"),
-        JSON.stringify(fallbackResult, null, 2)
-      );
-    } else {
-      fs.writeFileSync(
-        path.join(dataDir, "finalSchedules.json"),
-        JSON.stringify(null, null, 2)
-      );
-    }
-  } else {
     fs.writeFileSync(
       path.join(dataDir, "finalSchedules.json"),
       JSON.stringify(result, null, 2)
     );
-  }
-});
+  });

@@ -26,5 +26,6 @@
     }
   ],
   "totalCost": 60,
-  "totalRating": "4.5"
+  "totalRating": "4.5",
+  "fallBackUsed": false
 }
