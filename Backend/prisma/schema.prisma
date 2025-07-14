@@ -12,7 +12,8 @@ model User {
   name           String
   email          String           @unique
   password       String
-  credit         Int              @default(20)
+  credit         Int              @default(60)
+  rating         Float?
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
   userCourse     UserCourse[]
