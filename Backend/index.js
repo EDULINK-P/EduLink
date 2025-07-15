@@ -10,6 +10,7 @@ import profileRouter from "./Routes/profile.js";
 import zoomRoutes from "./Routes/zoom.js";
 import availabilityRoutes from "./Routes/TAavailability.js";
 import studentRequests from "./Routes/studentRequest.js";
+import schedulerRouter from "./Routes/scheduler.js";
 
 dotenv.config();
 
@@ -36,7 +37,7 @@ app.use(
     saveUninitialized: false,
     cookie: {
       secure: false,
-      httpOnly: false,
+      httpOnly: true,
       maxAge: 1000 * 60 * 60 * 24,
     },
   })
@@ -52,5 +53,6 @@ app.use("/profile", profileRouter);
 app.use("/api", zoomRoutes);
 app.use("/availability", availabilityRoutes);
 app.use("/student-requests", studentRequests);
+app.use("/schedule", schedulerRouter);
 
 app.listen(PORT, () => {});

@@ -1,28 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, use } from "react";
 import { useParams } from "react-router-dom";
 import StudentRequestModal from "../components/studentRequestModal";
+import BestScheduleModal from "../components/BestScheduleModal";
 import "../assets/room.css";
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 function StudentRoom() {
-  const { courseId } = useParams();
+  const { courseId} = useParams();
   const [upcoming, setUpcoming] = useState([]);
   const [availableTAs, setAvailableTAs] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMeeting = async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/api/meeting/${courseId}`,
-          {
-            credentials: "include",
-          }
-        );
+        const res = await fetch(`${BACKEND_URL}/api/meeting/${courseId}`, {
+          credentials: "include",
+        });
         const data = await res.json();
         setUpcoming(data);
-      } catch (err) {
-        console.error("Error Fetching Meeting", err);
+      } catch (error) {
+        setError(error);
+        console.error("Error Fetching Meeting", error);
       }
     };
     fetchMeeting();
@@ -32,10 +35,10 @@ function StudentRoom() {
     const fetchTAsAndCredits = async () => {
       try {
         const [taRes, creditRes] = await Promise.all([
-          fetch(`http://localhost:3000/student-requests/tas/${courseId}`, {
+          fetch(`${BACKEND_URL}/student-requests/tas/${courseId}`, {
             credentials: "include",
           }),
-          fetch(`http://localhost:3000/student-requests/credits`, {
+          fetch(`${BACKEND_URL}/student-requests/credits`, {
             credentials: "include",
           }),
         ]);
@@ -43,8 +46,9 @@ function StudentRoom() {
         const creditData = await creditRes.json();
         setAvailableTAs(taData.tas || []);
         setUserCredits(creditData.credits || 0);
-      } catch (err) {
-        console.error("Error Fetching TAs and Credits", err);
+      } catch (error) {
+        setError(error);
+        console.error("Error Fetching TAs and Credits", error);
       }
     };
     fetchTAsAndCredits();
@@ -52,35 +56,34 @@ function StudentRoom() {
 
   const handleJoinMeeting = async () => {
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/meeting/${courseId}/join`,
-        {
-          method: "POST",
-          credentials: "include",
-        }
-      );
+      const res = await fetch(`${BACKEND_URL}/api/meeting/${courseId}/join`, {
+        method: "POST",
+        credentials: "include",
+      });
       const data = await res.json();
       if (res.ok && data.joinUrl) {
         window.open(data.joinUrl, "_blank");
-      } else {
-        console.error("Error Joining Meeting", data);
       }
-    } catch (err) {
-      console.error("Error Joining Meeting", err);
+    } catch (error) {
+      setError(error);
+      console.error("Error Joining Meeting", error);
     }
   };
 
   const handleSubmitRequest = async (requestData) => {
+    console.log("Submitting Request", requestData);
     try {
-      const res = await fetch(`http://localhost:3000/student-requests`, {
+      const res = await fetch(`${BACKEND_URL}/student-requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
         credentials: "include",
       });
+      console.log("Request Submitted", res);
       if (!res.ok) throw new Error("Request failed");
-    } catch (err) {
-      console.error("Error Submitting Request", err);
+    } catch (error) {
+      setError(error);
+      console.error("Error Submitting Request", error);
     }
   };
 
@@ -88,14 +91,14 @@ function StudentRoom() {
     <div className="container">
       <div className="room-selection">
         <h2 className="room-title">Study Room</h2>
-        <p className="room-subtitle">Course ID: {courseId}</p>
+        <p className="room-subtitle">Manage Your Sessions and view Recommendations </p>
         <h2 className="form-subtitle">Upcoming Sessions</h2>
         {upcoming.length > 0 ? (
           upcoming.map((meeting, idx) => (
             <div key={idx} className="session-card">
               <div className="session-title">{meeting.topic}</div>
               <div className="session-time">
-                Start at: {new Date(meeting.starTime).toLocaleString()}
+                Start at: {new Date(meeting.startTime).toLocaleString()}
               </div>
               <button
                 className="form-button"
@@ -122,9 +125,12 @@ function StudentRoom() {
           <p className="empty-state">No TAs found for this course</p>
         )}
       </div>
+      <button className="form-button" onClick={() => setShowScheduleModal(true)}> Best Match </button>
+      {showScheduleModal && <BestScheduleModal onClose={() => setShowScheduleModal(false)} />}
       <button className="form-button" onClick={() => setShowModal(true)}>
         Request TA Support
       </button>
+      {error && <div className="error-message">{error}</div>}
       {showModal && (
         <StudentRequestModal
           courseId={courseId}

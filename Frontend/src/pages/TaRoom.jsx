@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+
 import "../assets/room.css";
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
 function TaRoom() {
   const { courseId } = useParams();
   const [topic, setTopic] = useState("");
@@ -8,19 +12,21 @@ function TaRoom() {
   const [upcoming, setUpcoming] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [intervals, setIntervals] = useState([{day: "", start: "", end: ""}]);
+  const [intervals, setIntervals] = useState([{ day: "", start: "", end: "" }]);
   const [rate, setRate] = useState(10);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     // Fetch the upcoming meeting
     const fetchMeetings = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/meeting/${courseId}`, {
+        const res = await fetch(`${BACKEND_URL}/api/meeting/${courseId}`, {
           credentials: "include",
         });
         const data = await res.json();
         setUpcoming(data);
       } catch (err) {
+        setError(error);
         console.error("Error fetching meeting:", err);
       }
     };
@@ -29,12 +35,12 @@ function TaRoom() {
 
   const handleCreateMeeting = async () => {
     if (!topic || !startTime) {
-      alert("Please enter a topic and start time");
+      setError("Please enter a topic and start time");
       return;
     }
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:3000/api/zoom-meetings", {
+      const res = await fetch(`${BACKEND_URL}/api/zoom-meetings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -45,53 +51,57 @@ function TaRoom() {
         }),
       });
       const newMeeting = await res.json();
-      setUpcoming(prev => [...prev, newMeeting]);
+      setUpcoming((prev) => [...prev, newMeeting]);
       setTopic("");
       setStartTime("");
-    } catch (err) {
-      console.error("Error creating meeting:", err);
+    } catch (error) {
+      setError(error);
+      console.error("Error creating meeting:", error);
     }
     setLoading(false);
   };
 
   const handleIntervalChange = (index, field, value) => {
     const updated = [...intervals];
-    updated[index][field] = value;
+    updated[index] = { ...updated[index], [field]: value };
     setIntervals(updated);
   };
 
-  const handleSubmitAvailability = async () => {
-    e.preventDefault();
+  const addInterval = () => {
+    setIntervals([...intervals, { day: "", start: "", end: "" }]);
+  };
 
-    const formattedIntervals = intervals.map(({day, start, end}) => ({
+  const handleSubmitAvailability = async (e) => {
+    e.preventDefault();
+    const formattedIntervals = intervals.map(({ day, start, end }) => ({
       day,
-      interval: `${start}-${end}`,
+      interval: `${start}:00-${end}:00`,
     }));
     try {
-      const res = await fetch("/availability", {
+      const res = await fetch(`${BACKEND_URL}/availability/${courseId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          course_id: courseId,
-          rate,
+          courseId,
+          rate: parseInt(rate),
           intervals: formattedIntervals,
         }),
       });
       const data = await res.json();
-      setShowModal(false);
-    } catch (err) {
-      console.error("Error saving availability:", err);
+    } catch (error) {
+      setError(error);
+      console.error("Error saving availability:", error);
     }
-    setLoading(false);
   };
-
 
   return (
     <div className="container">
       <div className="room-selection">
         <h2 className="room-title">TA Room</h2>
-        <button className="availablity-btn" onClick={() => setShowModal(true)}>Set Availability & Rates</button>
+        <button className="availablity-btn" onClick={() => setShowModal(true)}>
+          Set Availability & Rates
+        </button>
       </div>
       <div className="form-section">
         <div className="form-group">
@@ -120,6 +130,7 @@ function TaRoom() {
         >
           {loading ? "Creating..." : "Create Session (+15 credits)"}
         </button>
+        {error && <div className="error-message">{error}</div>}
       </div>
       <div className="room-section">
         <div className="room-title">Your Upcoming Session</div>
@@ -151,26 +162,92 @@ function TaRoom() {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <button className="close-btn" onClick={() => setShowModal(false)}>X</button>
+            <button className="close-btn" onClick={() => setShowModal(false)}>
+              X
+            </button>
             <div className="form-section">
-              <h2 > Set Availability & Rates </h2>
+              <h2> Set Availability & Rates </h2>
               <form onSubmit={handleSubmitAvailability}>
-                {intervals.map((entry,idx) => (
-                  <>
-                  <select className="form-select" value={entry.day} onChange={(e) => handleIntervalChange(idx , 'day', e.target.value)}>
-                    <option value="">Select a day</option>
-                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday','Sunday'].map(day => (
-                       <option value={day}>{day}</option>
-                    ))}
-                  </select>
-                  <input type="time" className="form-input" value={entry.start} onChange={(e) => handleIntervalChange(idx, 'start', e.target.value)} />
-                  <input type="time" className="form-input" value={entry.end} onChange={(e) => handleIntervalChange(idx, 'end', e.target.value)} />
-                  </>
+                {intervals.map((entry, idx) => (
+                  <div key={idx}>
+                    <select
+                      className="form-select"
+                      value={entry.day}
+                      onChange={(e) =>
+                        handleIntervalChange(idx, "day", e.target.value)
+                      }
+                    >
+                      <option value="">Select a day</option>
+                      {[
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday",
+                        "Sunday",
+                      ].map((day, idx) => (
+                        <option key={idx} value={day}>
+                          {day}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      type="time"
+                      className="form-select"
+                      value={entry.start}
+                      onChange={(e) =>
+                        handleIntervalChange(idx, "start", e.target.value)
+                      }
+                    >
+                      <option value="">Select Start Time</option>
+                      {Array.from({ length: 24 }, (_, i) => {
+                        const hour = String(i).padStart(2, "0");
+                        return (
+                          <option key={hour} value={hour}>
+                            {hour}:00{" "}
+                          </option>
+                        );
+                      })}
+                    </select>
+                    <select
+                      type="time"
+                      className="form-select"
+                      value={entry.end}
+                      onChange={(e) =>
+                        handleIntervalChange(idx, "end", e.target.value)
+                      }
+                    >
+                      <option value="">Select End Time</option>
+                      {Array.from({ length: 24 }, (_, i) => {
+                        const hour = String(i).padStart(2, "0");
+                        return (
+                          <option key={hour} value={hour}>
+                            {hour}:00{" "}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
                 ))}
-                <button className="form-button" type="button" onClick={handleIntervalChange}> + Add Interval</button>
+                <button
+                  className="form-button"
+                  type="button"
+                  onClick={addInterval}
+                >
+                  + Add Interval
+                </button>
                 <label className="form-label">Rate per Session (max 30)</label>
-                <input type="number" className="form-input" value={rate} onChange={(e) => setRate(parseInt(e.target.value))} />
-                <button type="submit" className="form-button">Save Availability</button>
+                <input
+                  type="number"
+                  className="form-input"
+                  value={rate}
+                  onChange={(e) => setRate(parseInt(e.target.value))}
+                />
+                <button type="submit" className="form-button">
+                  Save Availability
+                </button>
+                {error && <div className="error-message">{error}</div>}
               </form>
             </div>
           </div>

@@ -24,6 +24,10 @@
     margin-bottom: 1rem;
     color: #1f2937;
 }
+.room-description{
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
 .room-subtitle{
     color: #6b7280;
     margin-bottom: 1.5rem;
@@ -50,7 +54,7 @@
 .session-card{
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #fdf4ff, #fae8ff);
+    background: white;
     border-radius: 1rem;
     padding: 1rem;
     margin-bottom: 1rem;
@@ -59,6 +63,7 @@
     font-weight: 600;
     color: #7c3aed;
     font-size: 1rem;
+    margin-left: 0.5rem;
 }
 .session-time{
     color: #6b7280;
