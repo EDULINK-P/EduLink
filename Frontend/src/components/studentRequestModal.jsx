@@ -6,7 +6,7 @@ const StudentRequestModal = ({ courseId, userCredits, onClose, onSubmit }) => {
   const [sessionsPerWeek, setSessionsPerWeek] = useState("");
   const [maxSessionsPerDay, setMaxSessionsPerDay] = useState(1);
   const [weeklyBudget, setWeeklyBudget] = useState(1);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null);
 
   const handleIntervalChange = (index, field, value) => {
     const updated = [...intervals];
@@ -19,27 +19,24 @@ const StudentRequestModal = ({ courseId, userCredits, onClose, onSubmit }) => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (parseInt(weeklyBudget) > userCredits) {
-      setError(
-        `Weekly budget exceeds your current credits ${userCredits}`,
-        error
-      );
-      return;
+    try{
+      e.preventDefault();
+      const formattedIntervals = intervals.map(({ day, start, end }) => ({
+        day,
+        interval: `${start}:00-${end}:00`,
+      }));
+      const requestData = {
+        courseId,
+        intervals: formattedIntervals,
+        sessionsPerWeek,
+        maxSessionsPerDay,
+        weeklyBudget: parseInt(weeklyBudget),
+      };
+      onSubmit(requestData);
+      onClose();
+    } catch (error) {
+      setError(error);
     }
-    const formattedIntervals = intervals.map(({ day, start, end }) => ({
-      day,
-      interval: `${start} - ${end}`,
-    }));
-    const requestData = {
-      courseId,
-      intervals: formattedIntervals,
-      sessionsPerWeek,
-      maxSessionsPerDay,
-      weeklyBudget: parseInt(weeklyBudget),
-    };
-    onSubmit(requestData);
-    onClose();
   };
 
   return (
@@ -98,22 +95,40 @@ const StudentRequestModal = ({ courseId, userCredits, onClose, onSubmit }) => {
                     </option>
                   ))}
                 </select>
-                <input
+                <select
                   type="time"
-                  className="form-input"
+                  className="form-select"
                   value={entry.start}
                   onChange={(e) =>
                     handleIntervalChange(idx, "start", e.target.value)
                   }
-                />
-                <input
+                >
+                  <option value="">Select Start Time</option>
+                  {Array.from({ length: 24 }, (_, i) => {
+                    const hour = String(i).padStart(2, "0");
+                    return (
+                      <option key={hour} value={hour}>
+                        {hour}:00 </option>
+                    );
+                  })}
+                </select>
+                <select
                   type="time"
-                  className="form-input"
+                  className="form-select"
                   value={entry.end}
                   onChange={(e) =>
                     handleIntervalChange(idx, "end", e.target.value)
                   }
-                />
+                >
+                  <option value="">Select End Time</option>
+                  {Array.from({ length: 24 }, (_, i) => {
+                    const hour = String(i).padStart(2, "0");
+                    return (
+                      <option key={hour} value={hour}>
+                        {hour}:00 </option>
+                    );
+                  })}
+                </select>
               </div>
             ))}
             <button type="button" className="form-button" onClick={addInterval}>
@@ -127,6 +142,7 @@ const StudentRequestModal = ({ courseId, userCredits, onClose, onSubmit }) => {
             value={maxSessionsPerDay}
             onChange={(e) => setMaxSessionsPerDay(parseInt(e.target.value))}
           />
+          {error && <div className="error-message">{error}</div>}
           <button type="submit" className="form-button">
             Submit
           </button>
