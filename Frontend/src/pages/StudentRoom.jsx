@@ -1,5 +1,5 @@
 import React, { useState, useEffect, use } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import StudentRequestModal from "../components/studentRequestModal";
 import BestScheduleModal from "../components/BestScheduleModal";
 import "../assets/room.css";
@@ -7,13 +7,14 @@ import "../assets/room.css";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 function StudentRoom() {
-  const { courseId} = useParams();
+  const { courseId } = useParams();
   const [upcoming, setUpcoming] = useState([]);
   const [availableTAs, setAvailableTAs] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMeeting = async () => {
@@ -71,7 +72,6 @@ function StudentRoom() {
   };
 
   const handleSubmitRequest = async (requestData) => {
-    console.log("Submitting Request", requestData);
     try {
       const res = await fetch(`${BACKEND_URL}/student-requests`, {
         method: "POST",
@@ -79,7 +79,6 @@ function StudentRoom() {
         body: JSON.stringify(requestData),
         credentials: "include",
       });
-      console.log("Request Submitted", res);
       if (!res.ok) throw new Error("Request failed");
     } catch (error) {
       setError(error);
@@ -91,7 +90,9 @@ function StudentRoom() {
     <div className="container">
       <div className="room-selection">
         <h2 className="room-title">Study Room</h2>
-        <p className="room-subtitle">Manage Your Sessions and view Recommendations </p>
+        <p className="room-subtitle">
+          Manage Your Sessions and view Recommendations{" "}
+        </p>
         <h2 className="form-subtitle">Upcoming Sessions</h2>
         {upcoming.length > 0 ? (
           upcoming.map((meeting, idx) => (
@@ -125,8 +126,16 @@ function StudentRoom() {
           <p className="empty-state">No TAs found for this course</p>
         )}
       </div>
-      <button className="form-button" onClick={() => setShowScheduleModal(true)}> Best Match </button>
-      {showScheduleModal && <BestScheduleModal onClose={() => setShowScheduleModal(false)} />}
+      <button
+        className="form-button"
+        onClick={() => setShowScheduleModal(true)}
+      >
+        {" "}
+        Best Match{" "}
+      </button>
+      {showScheduleModal && (
+        <BestScheduleModal onClose={() => setShowScheduleModal(false)} />
+      )}
       <button className="form-button" onClick={() => setShowModal(true)}>
         Request TA Support
       </button>
@@ -139,6 +148,12 @@ function StudentRoom() {
           onSubmit={handleSubmitRequest}
         />
       )}
+      <button
+        className="form-button"
+        onClick={() => navigate(`/notes/${courseId}`)}
+      >
+        View Notes
+      </button>
     </div>
   );
 }

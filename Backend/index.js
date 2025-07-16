@@ -1,4 +1,6 @@
 import express from "express";
+import http from "http";
+import { setUpSocket } from "./socketHandler.js";
 import cors from "cors";
 import session from "express-session";
 import * as connectRedis from "connect-redis";
@@ -11,6 +13,7 @@ import zoomRoutes from "./Routes/zoom.js";
 import availabilityRoutes from "./Routes/TAavailability.js";
 import studentRequests from "./Routes/studentRequest.js";
 import schedulerRouter from "./Routes/scheduler.js";
+import noteRouter from "./Routes/notes.js";
 
 dotenv.config();
 
@@ -54,5 +57,9 @@ app.use("/api", zoomRoutes);
 app.use("/availability", availabilityRoutes);
 app.use("/student-requests", studentRequests);
 app.use("/schedule", schedulerRouter);
+app.use("/notes", noteRouter);
 
-app.listen(PORT, () => {});
+const server = http.createServer(app);
+setUpSocket(server);
+
+server.listen(PORT, () => {});

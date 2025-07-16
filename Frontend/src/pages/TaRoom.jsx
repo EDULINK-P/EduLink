@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import "../assets/room.css";
 
@@ -15,6 +15,7 @@ function TaRoom() {
   const [intervals, setIntervals] = useState([{ day: "", start: "", end: "" }]);
   const [rate, setRate] = useState(10);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Fetch the upcoming meeting
@@ -253,6 +254,12 @@ function TaRoom() {
           </div>
         </div>
       )}
+      <button
+        className="form-button"
+        onClick={() => navigate(`/notes/${courseId}`)}
+      >
+        View Notes
+      </button>
     </div>
   );
 }
