@@ -141,7 +141,6 @@ const StickyNoteRoom = () => {
         ...prev,
         [noteId]: content,
       }));
-      //set the preview to the content of the note
       if (userId !== currentUserId) {
         setNoteContents((prev) => ({
           ...prev,
