@@ -89,10 +89,6 @@ const StickyNoteRoom = () => {
     }
     emitLockNote(note.id);
     setEditingNoteId(note.id);
-    setNoteContents((prev) => ({
-      ...prev,
-      [note.id]: note.content || "",
-    }));
   };
 
   const handleChange = (note, value) => {
@@ -100,6 +96,7 @@ const StickyNoteRoom = () => {
       ...prev,
       [note.id]: value,
     }));
+  console.log(note.id, value);
     emitUpdateNote(note.id, value);
   };
 
@@ -141,7 +138,6 @@ const StickyNoteRoom = () => {
         ...prev,
         [noteId]: content,
       }));
-      //set the preview to the content of the note
       if (userId !== currentUserId) {
         setNoteContents((prev) => ({
           ...prev,

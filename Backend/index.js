@@ -145,7 +145,7 @@ io.on("connection", (socket) => {
     io.emit("note_content_preview", { noteId, content, userId });
   });
 
-  
+
   socket.on("disconnect", () => {});
 });
 
