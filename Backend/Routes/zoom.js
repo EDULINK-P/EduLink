@@ -60,6 +60,7 @@ router.post("/zoom-meetings", async (req, res) => {
 
 router.get("/meeting/:courseId", async (req, res) => {
   const courseId = parseInt(req.params.courseId);
+  console.log(courseId);
   try {
     const meetings = await prisma.zoomMeeting.findMany({
       where: { course_id: courseId },

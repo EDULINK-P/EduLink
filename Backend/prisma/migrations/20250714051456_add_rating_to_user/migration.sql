@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "User" ADD COLUMN     "rating" DOUBLE PRECISION,
+ALTER COLUMN "credit" SET DEFAULT 60;

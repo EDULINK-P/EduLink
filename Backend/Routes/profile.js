@@ -64,6 +64,8 @@ router.post("/setup", verifySession, async (req, res) => {
 
 router.get("/dashboard", verifySession, async (req, res) => {
   const userId = parseInt(req.session.userId, 10);
+  console.log("user", req.session.userId)
+  console.log("userId", userId);
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -82,6 +84,7 @@ router.get("/dashboard", verifySession, async (req, res) => {
     const courses = user.userCourse.map((uc) => ({
       courseName: uc.course.name,
       role: uc.role,
+      courseId: uc.course.id,
     }));
     res.status(200).json({
       message: "Profile fetched successfully",

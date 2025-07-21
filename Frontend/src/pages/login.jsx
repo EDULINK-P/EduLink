@@ -58,6 +58,7 @@ const Login = () => {
         <button type="submit" className="form-button" onClick={handleLogin}>
           Login
         </button>
+        <p className="error-message">{error}</p>
         <p className="form-link">
           Don't have an account?
           <a className="form-link-a" href="/signup">

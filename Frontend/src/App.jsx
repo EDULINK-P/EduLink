@@ -10,6 +10,9 @@ import ManageCourses from "./pages/manageCourses";
 import TaRoom from "./pages/taRoom";
 import StudentRoom from "./pages/StudentRoom";
 import BestScheduleModal from "./components/BestScheduleModal";
+import StickyNoteRoom from "./pages/stickyNoteRoom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Preview from "./pages/preview";
 import "../src/assets/app.css";
 
 function App() {
@@ -22,11 +25,13 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/profileSetup" element={<ProfileSetup />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/manage-courses" element={<ManageCourses />} />
-            <Route path="/room/ta/:courseId" element={<TaRoom />} />
-            <Route path="/room/student/:courseId" element={<StudentRoom />} />
-            <Route path="/student/:studentId/best-match" element={<BestScheduleModal />} />
+            <Route path="/preview" element={<Preview />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard/></ProtectedRoute>} />
+            <Route path="/manage-courses" element={<ProtectedRoute><ManageCourses /></ProtectedRoute>}/>
+            <Route path="/room/ta/:courseId" element={<ProtectedRoute><TaRoom /></ProtectedRoute>} />
+            <Route path="/room/student/:courseId" element={<ProtectedRoute><StudentRoom /></ProtectedRoute>} />
+            <Route path="/student/:studentId/best-match" element={<ProtectedRoute><BestScheduleModal /></ProtectedRoute>} />
+            <Route path="/notes/:courseId" element={<StickyNoteRoom />} />
           </Routes>
         </main>
       </Router>

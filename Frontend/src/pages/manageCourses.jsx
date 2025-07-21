@@ -2,27 +2,40 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/authContext";
 
 const ManageCourses = () => {
-  const { user, getcourse, addcourse, getdashboardData } = useAuth();
+  const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [userCourses, setUserCourses] = useState([]);
   const [selected, setSelected] = useState({ courseId: "", role: "Student" });
+  const [error, setError] = useState(null);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getcourse();
-        setCourses(res.courses || []);
-        setUserCourses(user?.courses || []);
+        const response = await fetch(`${BACKEND_URL}/courses`, {
+          credentials: "include",
+        });
+        const courseData = await response.json();
+        setCourses(courseData.courses || []);
+
+        const dashboardResponse = await fetch(`${BACKEND_URL}/profile/dashboard`, {
+          credentials: "include",
+        });
+        const dashboardData = await dashboardResponse.json();
+        setUserCourses(dashboardData.courses || []);
       } catch (error) {
-        console.error("Failed to load courses", error);
+        console.error("Error fetching data:", error);
+        setError(error);
       }
     };
     fetchData();
-  }, [getcourse, user?.courses]);
+  }, []);
 
   const handleAdd = async () => {
+    setError("");
+
     if (userCourses.length >= 5) {
-      alert("You have reached the maximum number of courses");
+      setError("You can reach the maximum number of courses");
       return;
     }
     const alreadyExists = userCourses.some(
@@ -30,19 +43,27 @@ const ManageCourses = () => {
         c.courseId === parseInt(selected.courseId) && c.role === selected.role
     );
     if (alreadyExists) {
-      alert("This course already exists in your dashboard");
+      setError("This course already exists in your dashboard");
       return;
     }
     try {
-      const newCourse = await addcourse(
-        parseInt(selected.courseId),
-        selected.role
-      );
-      setUserCourses((prev) => [...prev, newCourse]);
-      await getdashboardData();
-      alert("Course added successfully!");
+      const res = await fetch(`${BACKEND_URL}/profile/add-course`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseId: parseInt(selected.courseId),
+          role: selected.role,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to add course");
+      setUserCourses((prev) => [...prev, data.newCourse]);
     } catch (error) {
-      alert(error.message || "Failed to add course");
+      console.error("Error adding course:", error);
+      setError(error.message);
     }
   };
   return (
@@ -93,6 +114,7 @@ const ManageCourses = () => {
         <button className="btn-primary" onClick={handleAdd}>
           Add Course
         </button>
+        {error && <p className="error-message">{error}</p>}
       </div>
     </main>
   );

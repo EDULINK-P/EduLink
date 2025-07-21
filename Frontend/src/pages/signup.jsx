@@ -16,7 +16,7 @@ const Signup = () => {
     e.preventDefault();
     const isAcademic = await validateAcademicEmail(email);
     if (!isAcademic) {
-      alert("Please enter a valid academic email address");
+      setError("Please enter a valid academic email address");
       return;
     }
     const res = await signup(name, email, password);
@@ -64,6 +64,7 @@ const Signup = () => {
             required
           />
         </div>
+        <p className="error-message">{error}</p>
         <button type="submit" className="form-button" onClick={handleSignUp}>
           Create Account
         </button>

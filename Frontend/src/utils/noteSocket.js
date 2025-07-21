@@ -24,9 +24,6 @@ function emitUnlockNote(noteId) {
 function emitUpdateNote(noteId, content) {
   socket.emit("update_note", { noteId, content });
 }
-function emitNoteContentPreview(noteId, content) {
-  socket.emit("note_content_preview", { noteId, content });
-}
 
 // Listen Events
 function onNewNote(courseId, callback) {
@@ -80,7 +77,6 @@ export {
   emitCreateNote,
   emitLockNote,
   emitUnlockNote,
-  emitNoteContentPreview,
   onNewNote,
   onNoteUpdate,
   onNoteLocked,

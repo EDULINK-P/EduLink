@@ -1,11 +1,10 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   joinCourse,
   emitCreateNote,
   emitLockNote,
   emitUnlockNote,
-  emitNoteContentPreview,
   emitUpdateNote,
   onNewNote,
   onNoteUpdate,
@@ -32,11 +31,16 @@ const StickyNoteRoom = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [lockedNotes, setLockedNotes] = useState({});
   const [previews, setPreviews] = useState({});
+  const [canRedo, setCanRedo] = useState(false);
+  const [canUndo, setCanUndo] = useState(false);
 
   useEffect(() => {
     joinCourse(courseId);
     onNewNote(courseId, (note) => {
       setNotes((prevNotes) => [...prevNotes, note]);
+      setNoteContents((prev) => ({ ...prev, [note.id]: note.content }));
+      setCanRedo((prev) => ({ ...prev, [note.id]: false }));
+      setCanUndo((prev) => ({ ...prev, [note.id]: false }));
     });
     return () => {
       offNewNote();
@@ -51,6 +55,7 @@ const StickyNoteRoom = () => {
           credentials: "include",
         });
         const data = await response.json();
+        console.log(data);
         setNotes(data);
       } catch (error) {
         console.error(error);
@@ -83,24 +88,48 @@ const StickyNoteRoom = () => {
   }, []);
 
   const handleStartEdit = (note) => {
+    console.log(lockedNotes);
+    console.log(note);
+    console.log(note.id);
     const lockedBy = lockedNotes[note.id];
+    console.log(lockedBy);
     if (lockedBy && lockedBy !== currentUserId) {
       return;
     }
+    console.log("start edit");
     emitLockNote(note.id);
+    console.log(emitLockNote(note.id))
     setEditingNoteId(note.id);
+    console.log(setEditingNoteId(note.id));
+    console.log(note.content);
+    console.log(noteContents);
+    //set the notecontents only if it is not already set
+    if (!noteContents[note.id]) {
+      console.log("setting note contents");
+      setNoteContents((prev) => ({
+        ...prev,
+        [note.id]: note.content,
+      }));
+    }
   };
 
+  useEffect(() => {
+    console.log("use effect");
+    console.log(canRedo);
+  }, [canRedo]);
   const handleChange = (note, value) => {
+    console.log(note.id, value);
     setNoteContents((prev) => ({
       ...prev,
       [note.id]: value,
     }));
-  console.log(note.id, value);
+    console.log(note.id, value);
     emitUpdateNote(note.id, value);
   };
 
   const handleBlur = async (note) => {
+    console.log("blur");
+    console.log(note);
     const content = noteContents[note.id];
     if (content !== undefined) {
       const res = await fetch(`${BACKEND_URL}/notes/${note.id}/save`, {
@@ -110,11 +139,58 @@ const StickyNoteRoom = () => {
         body: JSON.stringify({ content }),
       });
       if (res.ok) {
+        const data = await res.json();
+        console.log(data);
+        //set note content to the saved content
+        setNoteContents((prev) => ({ ...prev, [note.id]: data.content }));
+        setPreviews((prev) => ({ ...prev, [note.id]: data.content }));
+
         emitUpdateNote(note.id, content);
       }
     }
     setEditingNoteId(null);
     emitUnlockNote(note.id);
+  };
+
+  const handleUndo = async (noteId) => {
+    console.log("undo");
+    console.log(noteId);
+    try {
+      const res = await fetch(`${BACKEND_URL}/notes/${noteId}/undo`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        console.log(data);
+        setNoteContents((prev) => ({ ...prev, [noteId]: data.content }));
+        setPreviews((prev) => ({ ...prev, [noteId]: data.content }));
+        setCanRedo((prev) => ({ ...prev, [noteId]: true }));
+      } else {
+        setCanUndo((prev) => ({ ...prev, [noteId]: false }));
+      }
+    } catch (error) {
+      console.error("Undo Failed", error);
+    }
+  };
+
+  const handleRedo = async (noteId) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/notes/${noteId}/redo`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setNoteContents((prev) => ({ ...prev, [noteId]: data.content }));
+        setPreviews((prev) => ({ ...prev, [noteId]: data.content }));
+        // setCanUndo(prev => ({...prev, [noteId]: true}))
+      } else {
+        setCanRedo((prev) => ({ ...prev, [noteId]: false }));
+      }
+    } catch (error) {
+      console.error("Redo Failed", error);
+    }
   };
 
   useEffect(() => {
@@ -146,11 +222,15 @@ const StickyNoteRoom = () => {
       }
     };
 
-    const handleNoteUpdate = ({ noteId, content }) => {
+    const handleNoteUpdate = ({ noteId, content, userId }) => {
       setNoteContents((prev) => ({
         ...prev,
         [noteId]: content,
       }));
+      if (userId === currentUserId) {
+        setCanRedo((prev) => ({ ...prev, [noteId]: true }));
+        setCanRedo((prev) => ({ ...prev, [noteId]: false }));
+      }
     };
 
     const handleLockDenied = ({ noteId: deniedNoteId }) => {
@@ -171,7 +251,14 @@ const StickyNoteRoom = () => {
       offNoteUpdate(handleNoteUpdate);
       offLockDenied(handleLockDenied);
     };
-  }, [currentUserId]);
+  }, [
+    currentUserId,
+    editingNoteId,
+    noteContents,
+    setLockedNotes,
+    setPreviews,
+    setNoteContents,
+  ]);
   return (
     <div className="container">
       <div className="header">
@@ -208,7 +295,27 @@ const StickyNoteRoom = () => {
               {previews[note.id] && isLocked
                 ? `${previews[note.id]} (preview)`
                 : noteContents[note.id] || note.content}
-              📝
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUndo(note.id);
+                }}
+                className="undo-btn"
+                // disabled={!canUndo[note.id] || !isEditing}
+              >
+                ↩️ Undo
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRedo(note.id);
+                }}
+                className="redo-btn"
+                // disabled={!canRedo[note.id] || !isEditing}
+              >
+                ↪️ Redo
+              </button>
             </div>
           );
         })}

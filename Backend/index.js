@@ -53,6 +53,7 @@ const sessionMiddleware = session({
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
     maxAge: 6000 * 60 * 60 * 24,
+    sameSite: "lax"
   },
 });
 app.use(sessionMiddleware);
@@ -90,7 +91,7 @@ io.on("connection", (socket) => {
 
   socket.on("createNote", async ({ courseId, x, y }) => {
     try {
-      const newNote = await prisma.stickyNote.create({
+      const newNote = await prisma.stickyNotes.create({
         data: {
           course_id: parseInt(courseId),
           x: parseInt(x),
@@ -105,7 +106,9 @@ io.on("connection", (socket) => {
 
   // lock a sticky note and emit it to the course
   socket.on("lock_note", async ({ noteId }) => {
-    const note = await prisma.stickyNote.findUnique({
+    console.log("lock_note", noteId);
+    const userId = socket.request.session.userId;
+    const note = await prisma.stickyNotes.findUnique({
       where: { id: noteId },
     });
     const userCourse = await prisma.userCourse.findUnique({
