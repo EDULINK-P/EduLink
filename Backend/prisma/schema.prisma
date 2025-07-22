@@ -29,6 +29,7 @@ model Course {
   ZoomMeetings   ZoomMeeting[]
   TAAvailability TAAvailability[]
   StudentRequest StudentRequest[]
+  StickyNote     StickyNote[]
 }
 
 model UserCourse {
@@ -81,4 +82,14 @@ model StudentRequest {
   maxSessionsPerDay Int
   weeklyBudget      Int
   createdAt         DateTime @default(now())
+}
+
+model StickyNote {
+  id        String    @id @default(uuid())
+  x         Int
+  y         Int
+  lockedBy  String?
+  updatedAt DateTime?
+  course    Course    @relation(fields: [course_id], references: [id])
+  course_id Int
 }
