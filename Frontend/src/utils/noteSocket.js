@@ -26,6 +26,9 @@ function emitUpdateNote(noteId, content) {
 function emitNoteContentPreview(noteId, content) {
   socket.emit("note_content_preview", { noteId, content });
 }
+function emitUpdateNote(noteId, content) {
+  socket.emit("update_note", { noteId, content });
+}
 
 // Listen Events
 function onNewNote(courseId, callback) {
@@ -44,6 +47,7 @@ function onNoteUpdate(callback) {
 function onNoteContentPreview(callback) {
   socket.on("note_content_preview", callback);
 }
+
 function onNoteLocked(callback) {
   socket.on("note_locked", callback);
 }
@@ -73,6 +77,9 @@ function offNoteContentPreview() {
 function offLockDenied() {
   socket.off("lock_denied");
 }
+function offNoteContentPreview() {
+  socket.off("note_content_preview");
+}
 
 export {
   joinCourse,
@@ -94,4 +101,3 @@ export {
   onLockDenied,
   offLockDenied,
 };
-

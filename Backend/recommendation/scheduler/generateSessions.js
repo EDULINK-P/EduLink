@@ -1,18 +1,4 @@
-import fs from "fs";
-import path from "path";
 import { parseInterval, getHourBlocks } from "../utils/time.js";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const student = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../data/students.json"), "utf8")
-);
-const ta = JSON.parse(
-  fs.readFileSync(path.join(__dirname, "../data/tas.json"), "utf8")
-);
 
 function generateSessions(studentAvailability, taList) {
   const sessions = [];
@@ -25,9 +11,9 @@ function generateSessions(studentAvailability, taList) {
     for (const ta of taList) {
       const taId = ta.id;
       const taRate = ta.rate;
-      const taRating = ta.rating;
+      const taRating = ta.user?.rating ?? 0;
 
-      const matchingTADaySlots = ta.availability.filter(
+      const matchingTADaySlots = ta.intervals.filter(
         (a) => a.day === studentDay
       );
 
