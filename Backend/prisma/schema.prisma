@@ -85,11 +85,23 @@ model StudentRequest {
 }
 
 model StickyNote {
-  id        String    @id @default(uuid())
-  x         Int
-  y         Int
-  lockedBy  String?
-  updatedAt DateTime?
-  course    Course    @relation(fields: [course_id], references: [id])
-  course_id Int
+  id                Int                 @id @default(autoincrement())
+  course_id         Int
+  course            Course              @relation(fields: [course_id], references: [id])
+  content           String              @default("")
+  x                 Int
+  y                 Int
+  isLocked          Boolean             @default(false)
+  lockedBy          Int?
+  updatedAt         DateTime            @updatedAt
+  StickyNoteVersion StickyNoteVersion[]
+}
+
+model StickyNoteVersion {
+  id        Int        @id @default(autoincrement())
+  noteId    Int
+  note      StickyNote @relation(fields: [noteId], references: [id])
+  content   String     @default("")
+  editedBy  Int
+  timestamp DateTime   @default(now())
 }
