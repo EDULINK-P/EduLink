@@ -29,7 +29,7 @@ model Course {
   ZoomMeetings   ZoomMeeting[]
   TAAvailability TAAvailability[]
   StudentRequest StudentRequest[]
-  StickyNote     StickyNote[]
+  StickyNotes    StickyNotes[]
 }
 
 model UserCourse {
@@ -84,24 +84,28 @@ model StudentRequest {
   createdAt         DateTime @default(now())
 }
 
-model StickyNote {
-  id                Int                 @id @default(autoincrement())
-  course_id         Int
-  course            Course              @relation(fields: [course_id], references: [id])
-  content           String              @default("")
-  x                 Int
-  y                 Int
-  isLocked          Boolean             @default(false)
-  lockedBy          Int?
-  updatedAt         DateTime            @updatedAt
-  StickyNoteVersion StickyNoteVersion[]
+model StickyNotes {
+  id               Int                 @id @default(autoincrement())
+  course_id        Int
+  course           Course              @relation(fields: [course_id], references: [id])
+  content          String              @default("")
+  x                Int
+  y                Int
+  isLocked         Boolean             @default(false)
+  lockedBy         Int?
+  currentVersionId Int?                @unique
+  currentVersion   StickyNoteVersion?  @relation("currentVersion", fields: [currentVersionId], references: [id])
+  versions         StickyNoteVersion[] @relation("allVersions")
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 }
 
 model StickyNoteVersion {
-  id        Int        @id @default(autoincrement())
-  noteId    Int
-  note      StickyNote @relation(fields: [noteId], references: [id])
-  content   String     @default("")
-  editedBy  Int
-  timestamp DateTime   @default(now())
+  id           Int          @id @default(autoincrement())
+  noteId       Int
+  stickyNote   StickyNotes  @relation(name: "allVersions", fields: [noteId], references: [id])
+  content      String       @default("")
+  editedBy     Int
+  timestamp    DateTime     @default(now())
+  isCurrentFor StickyNotes? @relation("currentVersion")
 }
