@@ -46,7 +46,7 @@ const store = new RedisStore({
 
 const sessionMiddleware = session({
   store,
-  secret: "edulink-session-secret",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
