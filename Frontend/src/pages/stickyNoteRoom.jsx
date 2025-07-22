@@ -148,6 +148,25 @@ const StickyNoteRoom = () => {
     }
   };
 
+  const handleRedo = async (noteId) => {
+   try {
+     const res = await fetch(`${BACKEND_URL}/notes/${noteId}/redo`, {
+       method: "POST",
+       credentials: "include",
+     });
+     const data = await res.json();
+     if (res.ok) {
+       setNoteContents((prev) => ({ ...prev, [noteId]: data.content }));
+       setPreviews((prev) => ({ ...prev, [noteId]: data.content }));
+       setCanUndo(prev => ({...prev, [noteId]: true}))
+     } else {
+       setCanRedo((prev) => ({ ...prev, [noteId]: false }));
+     }
+   } catch (error) {
+     console.error("Redo Failed", error);
+   }
+ };
+
   useEffect(() => {
     const handleLocked = ({ noteId }) => {
       setLockedNotes((prev) => ({
@@ -155,7 +174,7 @@ const StickyNoteRoom = () => {
         [noteId]: true,
       }));
     };
-    
+
     const handleUnlocked = ({ noteId }) => {
       setLockedNotes((prev) => {
         const updated = { ...prev };
@@ -260,6 +279,16 @@ const StickyNoteRoom = () => {
                 // disabled={!canUndo[note.id] || !isEditing}
               >
                 ↩️ Undo
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRedo(note.id);
+                }}
+                className="redo-btn"
+                // disabled={!canRedo[note.id] || !isEditing}
+              >
+                ↪️ Redo
               </button>
             </div>
           );
