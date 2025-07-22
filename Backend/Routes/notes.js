@@ -1,5 +1,5 @@
 import express from "express";
-// import {io} from "../index.js";
+import {io} from "../index.js";
 import { PrismaClient } from "@prisma/client";
 import verifySession from "../middleware/auth.js";
 
@@ -39,7 +39,7 @@ router.post("/:noteId/save", verifySession, async (req, res) => {
       },
       include: { StickyNoteVersion: true },
     });
-    // io.emit("noteUpdated", updated);
+    io.emit("noteUpdated", updated);
     res.status(200).json(updated);
   } catch (error) {
     res.status(500).json({ error: "Failed to save note" });
