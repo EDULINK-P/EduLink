@@ -1,3 +1,4 @@
+
 import { io } from "socket.io-client";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const socket = io(BACKEND_URL, { withCredentials: true });
@@ -22,9 +23,6 @@ function emitUnlockNote(noteId) {
 }
 function emitUpdateNote(noteId, content) {
   socket.emit("update_note", { noteId, content });
-}
-function emitNoteContentPreview(noteId, content) {
-  socket.emit("note_content_preview", { noteId, content });
 }
 
 // Listen Events
@@ -79,7 +77,6 @@ export {
   emitCreateNote,
   emitLockNote,
   emitUnlockNote,
-  emitNoteContentPreview,
   onNewNote,
   onNoteUpdate,
   onNoteLocked,
@@ -94,4 +91,3 @@ export {
   onLockDenied,
   offLockDenied,
 };
-

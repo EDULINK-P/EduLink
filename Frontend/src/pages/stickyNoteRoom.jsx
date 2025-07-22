@@ -1,11 +1,10 @@
-import React, { useState, useEffect, use } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import {
   joinCourse,
   emitCreateNote,
   emitLockNote,
   emitUnlockNote,
-  emitNoteContentPreview,
   emitUpdateNote,
   onNewNote,
   onNoteUpdate,
@@ -32,11 +31,16 @@ const StickyNoteRoom = () => {
   const [currentUserId, setCurrentUserId] = useState(null);
   const [lockedNotes, setLockedNotes] = useState({});
   const [previews, setPreviews] = useState({});
+  const [canRedo, setCanRedo] = useState(false);
+  const [canUndo, setCanUndo] = useState(false);
 
   useEffect(() => {
     joinCourse(courseId);
     onNewNote(courseId, (note) => {
       setNotes((prevNotes) => [...prevNotes, note]);
+      setNoteContents((prev) => ({ ...prev, [note.id]: note.content }));
+      setCanRedo((prev) => ({ ...prev, [note.id]: false }));
+      setCanUndo((prev) => ({ ...prev, [note.id]: false }));
     });
     return () => {
       offNewNote();
@@ -89,10 +93,12 @@ const StickyNoteRoom = () => {
     }
     emitLockNote(note.id);
     setEditingNoteId(note.id);
-    setNoteContents((prev) => ({
-      ...prev,
-      [note.id]: note.content || "",
-    }));
+    if (!noteContents[note.id]) {
+      setNoteContents((prev) => ({
+        ...prev,
+        [note.id]: note.content,
+      }));
+    }
   };
 
   const handleChange = (note, value) => {
@@ -113,11 +119,33 @@ const StickyNoteRoom = () => {
         body: JSON.stringify({ content }),
       });
       if (res.ok) {
+        const data = await res.json();
+        setNoteContents((prev) => ({ ...prev, [note.id]: data.content }));
+        setPreviews((prev) => ({ ...prev, [note.id]: data.content }));
         emitUpdateNote(note.id, content);
       }
     }
     setEditingNoteId(null);
     emitUnlockNote(note.id);
+  };
+
+  const handleUndo = async (noteId) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/notes/${noteId}/undo`, {
+        method: "POST",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setNoteContents((prev) => ({ ...prev, [noteId]: data.content }));
+        setPreviews((prev) => ({ ...prev, [noteId]: data.content }));
+        setCanRedo((prev) => ({ ...prev, [noteId]: true }));
+      } else {
+        setCanUndo((prev) => ({ ...prev, [noteId]: false }));
+      }
+    } catch (error) {
+      console.error("Undo Failed", error);
+    }
   };
 
   useEffect(() => {
@@ -127,7 +155,7 @@ const StickyNoteRoom = () => {
         [noteId]: true,
       }));
     };
-
+    
     const handleUnlocked = ({ noteId }) => {
       setLockedNotes((prev) => {
         const updated = { ...prev };
@@ -149,11 +177,15 @@ const StickyNoteRoom = () => {
       }
     };
 
-    const handleNoteUpdate = ({ noteId, content }) => {
+    const handleNoteUpdate = ({ noteId, content, userId }) => {
       setNoteContents((prev) => ({
         ...prev,
         [noteId]: content,
       }));
+      if (userId === currentUserId) {
+        setCanRedo((prev) => ({ ...prev, [noteId]: true }));
+        setCanRedo((prev) => ({ ...prev, [noteId]: false }));
+      }
     };
 
     const handleLockDenied = ({ noteId: deniedNoteId }) => {
@@ -174,7 +206,14 @@ const StickyNoteRoom = () => {
       offNoteUpdate(handleNoteUpdate);
       offLockDenied(handleLockDenied);
     };
-  }, [currentUserId]);
+  }, [
+    currentUserId,
+    editingNoteId,
+    noteContents,
+    setLockedNotes,
+    setPreviews,
+    setNoteContents,
+  ]);
   return (
     <div className="container">
       <div className="header">
@@ -211,7 +250,17 @@ const StickyNoteRoom = () => {
               {previews[note.id] && isLocked
                 ? `${previews[note.id]} (preview)`
                 : noteContents[note.id] || note.content}
-              📝
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUndo(note.id);
+                }}
+                className="undo-btn"
+                // disabled={!canUndo[note.id] || !isEditing}
+              >
+                ↩️ Undo
+              </button>
             </div>
           );
         })}
@@ -221,4 +270,3 @@ const StickyNoteRoom = () => {
 };
 
 export default StickyNoteRoom;
-
