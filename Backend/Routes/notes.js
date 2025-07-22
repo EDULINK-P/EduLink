@@ -188,14 +188,8 @@ router.post("/:noteId/redo", verifySession, async (req, res) => {
       versions[index + 1].editedBy != userId
     ) {
       if (isTa) {
-        // update nextVersion to the next revision in the stack, after index, where editedBy === userId
-        const possibleRedoVersions = versions.slice(index - 1);
-        console.log(
-          "TA redo edited note, possibleRedoVersions:",
-          possibleRedoVersions
-        );
-        console.log("all versions:", versions);
-        var nextVersion = possibleRedoVersions.find(
+        // update nextVersion to the next revision in the stack where editedBy === userId
+        var nextVersion = versions.find(
           (v) => v.editedBy === userId
         );
         console.log("new nextVersion:", nextVersion);
