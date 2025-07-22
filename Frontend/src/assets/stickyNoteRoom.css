@@ -56,6 +56,20 @@
     font-family: inherit;
     outline: none;
 }
+.locked-banner {
+    background-color: #ffcdd2;
+    color: #b71c1c;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    text-align: center;
+}
+.locked-icon {
+    font-size: 16px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
 .create-note-card {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 16px;
@@ -75,7 +89,10 @@
     color: #4a5568;
     margin-bottom: 20px;
 }
-
+.click{
+    cursor: pointer;
+    color: #5d0a18;
+}
 .create-btn {
     color: white;
     border: none;
@@ -87,6 +104,12 @@
     transition: all 0.3s ease;
     font-weight: 600;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.save-btn {
+    color: white;
+    border: none;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-weight: 400;
 }
 .create-btn:hover {
     transform: translateY(-2px);
