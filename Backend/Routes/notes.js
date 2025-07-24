@@ -34,11 +34,11 @@ async function getNoteAndRole(noteId, userId) {
   };
 }
 
-//Helper Function 2: UpdateNoteVersions
+//Helper Function 2: updateNoteVersions
 //This Function sets the notes currentVersionId to a target Version.
 //It also emits a real time socket event ('note_content_preview') to update the frontend view for all users in the course.
 
-async function UpdateNoteVersion(noteId, content, versionId, userId) {
+async function updateNoteVersion(noteId, content, versionId, userId) {
   await prisma.stickyNotes.update({
     where: {id: noteId},
     data:{
@@ -153,7 +153,7 @@ router.post("/:noteId/undo", verifySession, async (req, res) => {
       targetVersion = prev;
     }
     //update pointer and emit new content preview
-    await UpdateNoteVersion(noteId, targetVersion.content, targetVersion.id, userId);
+    await updateNoteVersion(noteId, targetVersion.content, targetVersion.id, userId);
     res.status(200).json({noteId, content: targetVersion.content})
   } catch (error) {
     res.status(500).json({ error: "Failed to undo" });
@@ -198,7 +198,7 @@ router.post("/:noteId/redo", verifySession, async (req, res) => {
       var nextVersion = versions[currentIndex + 1];
     }
 
-    await UpdateNoteVersion(noteId, nextVersion.content, nextVersion.id, userId);
+    await updateNoteVersion(noteId, nextVersion.content, nextVersion.id, userId);
     res.status(200).json({ noteId, content: nextVersion.content });
   } catch (error) {
     res.status(500).json({ error: "Failed to redo" });

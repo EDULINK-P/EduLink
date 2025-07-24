@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { data, useParams } from "react-router-dom";
+import React, { useState, useEffect, useContext } from "react";
+import { useParams } from "react-router-dom";
 import {
   joinCourse,
   emitCreateNote,
@@ -19,11 +19,18 @@ import {
   onLockDenied,
   offLockDenied,
 } from "../utils/noteSocket";
+import {
+  saveNoteLocally,
+  getLocalNote,
+  deleteLocalNote,
+  getAllLocalNotes,
+} from "../utils/noteCache.js";
 import { useAuth } from "../context/authContext";
 import "../assets/stickyNoteRoom.css";
+import { NetworkStatusContext } from "../context/NetworkStatusContext.jsx";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
+// local state per note
 const StickyNoteRoom = () => {
   const { courseId } = useParams();
   const [notes, setNotes] = useState([]);
@@ -34,15 +41,17 @@ const StickyNoteRoom = () => {
   const [canRedo, setCanRedo] = useState({});
   const [canUndo, setCanUndo] = useState({});
   const [noteErrors, setNoteErrors] = useState({});
+  const [noteHistory, setNoteHistory] = useState({});
+  const [noteIndex, setNoteIndex] = useState({});
   const [pendingEditingNoteId, setPendingEditingNoteId] = useState(null);
-
   const { user } = useAuth();
   const currentUserId = user?.id;
+  const { isOnline } = useContext(NetworkStatusContext);
 
   useEffect(() => {
     // join the course room and listen for new notes
     joinCourse(courseId);
-
+    // listen for new notes
     onNewNote(courseId, (note) => {
       setNotes((prevNotes) => [...prevNotes, note]);
       setNoteContents((prev) => ({ ...prev, [note.id]: note.content }));
@@ -54,16 +63,81 @@ const StickyNoteRoom = () => {
     };
   }, [courseId]);
 
+  //Merge server note with any offline edited version
+  function mergeNotewithOffline(note, local) {
+    if (local && local.editedOffline) {
+      return {
+        ...note,
+        content: local.content,
+        currentVersionIndex: local.currentVersionIndex,
+        lastSyncedVersionId: local.lastSyncedVersionId || note.currentVersionId,
+        editedOffline: true,
+      };
+    }
+    return { ...note, editedOffline: false };
+  }
+
+  //Push offline edits to server when reconnected
+  async function syncOfflineNotes(courseId, handleBlur) {
+    const offlineNotes = getAllLocalNotes();
+    for (const [noteId, note] of Object.entries(offlineNotes)) {
+      if (note.editedOffline) {
+        await handleBlur({ id: noteId });
+      }
+    }
+  }
+
   useEffect(() => {
     //onload, fetch all sticky notes for the course.
     const loadNotes = async () => {
+      //Load from localStorage if offline
+      const localNotes = getAllLocalNotes();
+      for (const [noteId, note] of Object.entries(localNotes)) {
+        if (note.editedOffline) {
+          setNoteContents((prev) => ({ ...prev, [noteId]: note.content }));
+          setPreviews((prev) => ({ ...prev, [noteId]: note.content }));
+          setCanRedo((prev) => ({ ...prev, [noteId]: false }));
+          setCanUndo((prev) => ({ ...prev, [noteId]: true }));
+          setNoteIndex((prev) => ({
+            ...prev,
+            [noteId]: note.currentVersionIndex ?? -1,
+          }));
+          if (note.history) {
+            setNoteHistory((prev) => ({ ...prev, [noteId]: note.history }));
+          }
+        }
+      }
       try {
+        //fetch from backend
         const response = await fetch(`${BACKEND_URL}/notes/${courseId}`, {
           method: "GET",
           credentials: "include",
         });
         const data = await response.json();
-        setNotes(data);
+        //merge each with local version
+        const merged = data.map((note) => {
+          const local = getLocalNote(note.id);
+          const updated = mergeNotewithOffline(note, local);
+          if (local?.editedOffline) deleteLocalNote(note.id);
+          return updated;
+        });
+        setNoteContents(
+          Object.fromEntries(merged.map((note) => [note.id, note.content]))
+        );
+        setPreviews(
+          Object.fromEntries(merged.map((note) => [note.id, note.content]))
+        );
+        setCanRedo(Object.fromEntries(merged.map((note) => [note.id, false])));
+        setCanUndo(
+          Object.fromEntries(
+            merged.map((note) => [note.id, !!note?.editedOffline])
+          )
+        );
+        setNoteIndex(
+          Object.fromEntries(
+            merged.map((note) => [note.id, note.currentVersionIndex ?? -1])
+          )
+        );
       } catch (error) {
         console.error(error);
       }
@@ -74,6 +148,13 @@ const StickyNoteRoom = () => {
   const createNote = () => {
     emitCreateNote(courseId);
   };
+
+  //Sync when going online
+  useEffect(() => {
+    if (isOnline) {
+      syncOfflineNotes(courseId, handleBlur);
+    }
+  }, [isOnline, courseId]);
 
   // start editing a note
   const handleStartEdit = (note) => {
@@ -97,10 +178,26 @@ const StickyNoteRoom = () => {
 
   // while typing, update local state and emit preview content
   const handleChange = (note, value) => {
+    const history = noteHistory[note.id] || [];
+    const currentIdx = noteIndex[note.id] ?? -1;
+    const newIndex = currentIdx + 1;
+    const newHistory = [...history.slice(0, newIndex), value];
     setNoteContents((prev) => ({
       ...prev,
       [note.id]: value,
     }));
+    setNoteHistory((prev) => ({ ...prev, [note.id]: newHistory }));
+    setNoteIndex((prev) => ({ ...prev, [note.id]: newIndex }));
+    setCanUndo((prev) => ({ ...prev, [note.id]: newIndex >= 0 }));
+    setCanRedo((prev) => ({ ...prev, [note.id]: false }));
+    //Save to local storage
+    saveNoteLocally(note.id, {
+      content: value,
+      history: newHistory,
+      currentVersionIndex: newIndex,
+      lastSyncedVersionId: note.currentVersionId,
+      editedOffline: true,
+    });
     emitUpdateNote(note.id, value);
   };
 
@@ -126,8 +223,8 @@ const StickyNoteRoom = () => {
     emitUnlockNote(note.id);
   };
 
-  // undo the previous versions of the note
-  const handleUndo = async (noteId) => {
+  // undo the previous versions of the note when online
+  const handleServerUndo = async (noteId) => {
     try {
       const res = await fetch(`${BACKEND_URL}/notes/${noteId}/undo`, {
         method: "POST",
@@ -153,8 +250,41 @@ const StickyNoteRoom = () => {
       }));
     }
   };
+
+  // undo the previous versions of the note when offline
+  const handleOfflineUndo = (noteId) => {
+    const currentIdx = noteIndex[noteId] ?? -1;
+    if (currentIdx < 0) {
+      return;
+    }
+    const history = noteHistory[noteId] || [];
+    if (!history || !Array.isArray(history)) return;
+    const prevContent = history[currentIdx];
+    const newIndex = currentIdx - 1;
+    setNoteContents((prev) => ({ ...prev, [noteId]: prevContent }));
+    setNoteIndex((prev) => ({ ...prev, [noteId]: newIndex }));
+    setCanUndo((prev) => ({ ...prev, [noteId]: newIndex >= 0 }));
+    setCanRedo((prev) => ({ ...prev, [noteId]: true }));
+    const note = notes.find((note) => note.id === noteId);
+    saveNoteLocally(noteId, {
+      content: prevContent,
+      history,
+      currentVersionIndex: newIndex,
+      lastSyncedVersionId: note?.currentVersionId,
+      editedOffline: true,
+    });
+  };
+
+  //Undo (offline and online)
+  const onUndoClick = (noteId) => {
+    if (isOnline) {
+      handleServerUndo(noteId);
+    } else {
+      handleOfflineUndo(noteId);
+    }
+  };
   // Redo to the next versions of the note
-  const handleRedo = async (noteId) => {
+  const handleServerRedo = async (noteId) => {
     try {
       const res = await fetch(`${BACKEND_URL}/notes/${noteId}/redo`, {
         method: "POST",
@@ -178,6 +308,40 @@ const StickyNoteRoom = () => {
         ...prev,
         [noteId]: "You can only redo your own edits",
       }));
+    }
+  };
+
+  // Redo to the next versions of the note when offline
+  const handleOfflineRedo = (noteId) => {
+    const currentIdx = noteIndex[noteId] ?? -1;
+    const history = noteHistory[noteId] || [];
+    if (currentIdx >= history.length - 1) return;
+    const newIndex = currentIdx + 1;
+    const nextContent = history[newIndex];
+    setNoteContents((prev) => ({ ...prev, [noteId]: nextContent }));
+    setNoteIndex((prev) => ({ ...prev, [noteId]: newIndex }));
+    setCanUndo((prev) => ({ ...prev, [noteId]: true }));
+    setCanRedo((prev) => ({
+      ...prev,
+      [noteId]: newIndex < history.length - 1,
+    }));
+    const note = notes.find((note) => note.id === noteId);
+    saveNoteLocally(noteId, {
+      content: nextContent,
+      history,
+      currentVersionIndex: newIndex,
+      lastSyncedVersionId: note.find((note) => note.id === noteId)
+        ?.currentVersionId,
+      editedOffline: true,
+    });
+  };
+
+  //Redo (offline and online)
+  const onRedoClick = (noteId) => {
+    if (isOnline) {
+      handleServerRedo(noteId);
+    } else {
+      handleOfflineRedo(noteId);
     }
   };
 
@@ -317,7 +481,7 @@ const StickyNoteRoom = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleUndo(note.id);
+                  onUndoClick(note.id);
                 }}
                 className="undo-btn"
               >
@@ -326,7 +490,7 @@ const StickyNoteRoom = () => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleRedo(note.id);
+                  onRedoClick(note.id);
                 }}
                 className="redo-btn"
               >
