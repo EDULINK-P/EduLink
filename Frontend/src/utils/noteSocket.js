@@ -65,6 +65,12 @@ function onNoteUnlocked(callback) {
 function onLockDenied(callback) {
   socket.on("lock_denied", callback);
 };
+//When the undo/redo state of a note is updated
+function onUndoRedoState(callback) {
+  socket.on("note_undo_redo_state", ({ noteId, userId, canUndo, canRedo }) => {
+    callback({ noteId, userId, canUndo, canRedo });
+  });
+}
 // Off Events
 //Use these functions to prevent memory leaks or repeating events when navigating pages.
 //Stop listening to newNote events
@@ -111,4 +117,5 @@ export {
   emitUpdateNote,
   onLockDenied,
   offLockDenied,
+  onUndoRedoState,
 };
