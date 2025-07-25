@@ -18,6 +18,7 @@ import {
   offNoteContentPreview,
   onLockDenied,
   offLockDenied,
+  onUndoRedoState,
 } from "../utils/noteSocket";
 import {
   saveNoteLocally,
@@ -38,8 +39,8 @@ const StickyNoteRoom = () => {
   const [noteContents, setNoteContents] = useState({});
   const [lockedNotes, setLockedNotes] = useState({});
   const [previews, setPreviews] = useState({});
-  const [canRedo, setCanRedo] = useState({});
-  const [canUndo, setCanUndo] = useState({});
+  const [canRedo, setCanRedo] = useState({});  //Track whether a note can be undone by current user
+  const [canUndo, setCanUndo] = useState({});  //Track whether a note can be redone by current user
   const [noteErrors, setNoteErrors] = useState({});
   const [noteHistory, setNoteHistory] = useState({});
   const [noteIndex, setNoteIndex] = useState({});
@@ -121,6 +122,7 @@ const StickyNoteRoom = () => {
           if (local?.editedOffline) deleteLocalNote(note.id);
           return updated;
         });
+        setNotes(merged);
         setNoteContents(
           Object.fromEntries(merged.map((note) => [note.id, note.content]))
         );
@@ -441,6 +443,16 @@ const StickyNoteRoom = () => {
     }
   }, [currentUserId, lockedNotes, notes, noteContents, pendingEditingNoteId]);
 
+  //Listen for real time undo/redo state update for each note
+  useEffect(() => {
+    if (!currentUserId) return;
+    onUndoRedoState(({ noteId, canUndo, canRedo, userId }) => {
+      const isMe = userId === currentUserId;
+      setCanUndo((prev) => ({ ...prev, [noteId]: isMe ? canUndo : false }));
+      setCanRedo((prev) => ({ ...prev, [noteId]: isMe ? canRedo : false }));
+    });
+  }, [currentUserId]);
+
   return (
     <div className="container">
       <div className="header">
@@ -484,6 +496,7 @@ const StickyNoteRoom = () => {
                   onUndoClick(note.id);
                 }}
                 className="undo-btn"
+                disabled={!canUndo[note.id] || isEditing}
               >
                 ↩️ Undo
               </button>
@@ -493,6 +506,7 @@ const StickyNoteRoom = () => {
                   onRedoClick(note.id);
                 }}
                 className="redo-btn"
+                disabled={!canRedo[note.id] || isEditing}
               >
                 ↪️ Redo
               </button>

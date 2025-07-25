@@ -81,14 +81,16 @@ app.use("/student-requests", studentRequests);
 app.use("/schedule", schedulerRouter);
 app.use("/notes", noteRouter);
 
+//Note locking memory store(in-memory, not in DB)
 const locks = {};
-// socket io
+// socket.IO connection
 io.on("connection", (socket) => {
   const userId = socket.request.session.userId;
+  // join a specific course room
   socket.on("joinCourse", (courseId) => {
     socket.join(`course:${courseId}`);
   });
-
+  // create a new sticky note
   socket.on("createNote", async ({ courseId, x, y }) => {
     try {
       const newNote = await prisma.stickyNotes.create({
@@ -96,21 +98,33 @@ io.on("connection", (socket) => {
           course_id: parseInt(courseId),
           x: parseInt(x),
           y: parseInt(y),
+          currentVersionId: null,
         },
       });
+      //Broadcast to all users in that course
       io.to(`course:${courseId}`).emit("newNote", newNote);
+      //emit disabled undo/redo state when a new note is created 
+      io.emit("note_undo_redo_state", {
+        noteId: newNote.id,
+        userId,
+        canUndo: false,
+        canRedo: false,
+      });
     } catch (error) {
       console.error("createNote error", error);
     }
   });
 
-  // lock a sticky note and emit it to the course
+
+  // lock a sticky note
   socket.on("lock_note", async ({ noteId }) => {
     console.log("lock_note", noteId);
     const userId = socket.request.session.userId;
+    //fetch note and userCourse
     const note = await prisma.stickyNotes.findUnique({
       where: { id: noteId },
     });
+    //Check user's role in the course
     const userCourse = await prisma.userCourse.findUnique({
       where: {
         user_id_course_id: {
@@ -122,6 +136,7 @@ io.on("connection", (socket) => {
     });
     const role = userCourse.role;
     const currentLock = locks[noteId];
+    //Grant lock if: no one holds it OR user is TA OR you already hold it
     if (
       !currentLock ||
       role === "TA" ||
@@ -134,7 +149,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // unlock a sticky note and emit it to the course
+  // unlock a sticky note when done editing
   socket.on("unlock_note", ({ noteId }) => {
     if (locks[noteId]?.lockedBy === userId) {
       delete locks[noteId];
@@ -147,8 +162,7 @@ io.on("connection", (socket) => {
     const userId = socket.request.session.userId;
     io.emit("note_content_preview", { noteId, content, userId });
   });
-
-
+  //placeholder for cleanup on disconnect
   socket.on("disconnect", () => {});
 });
 

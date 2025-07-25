@@ -81,6 +81,7 @@ router.post("/:noteId/save", verifySession, async (req, res) => {
         content,
         noteId,
         editedBy: userId,
+        timestamp: new Date(),
       },
     });
     const updatedNote = await prisma.stickyNotes.update({
@@ -98,6 +99,13 @@ router.post("/:noteId/save", verifySession, async (req, res) => {
       content,
       userId,
     });
+    //emit undo state after a successful update
+    io.emit("note_undo_redo_state", {
+      noteId,
+      userId,
+      canUndo: currentIndex > 0,
+      canRedo: false,
+    })
     res.status(200).json(updatedNote);
   } catch (error) {
     res.status(500).json({ error: "Failed to save note" });
@@ -155,6 +163,13 @@ router.post("/:noteId/undo", verifySession, async (req, res) => {
     //update pointer and emit new content preview
     await updateNoteVersion(noteId, targetVersion.content, targetVersion.id, userId);
     res.status(200).json({noteId, content: targetVersion.content})
+    //emit undo state after a successful update
+    io.emit("note_undo_redo_state", {
+      noteId,
+      userId,
+      canUndo: currentIndex -1 > 0,
+      canRedo: true,
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to undo" });
     console.error(error);
@@ -200,6 +215,13 @@ router.post("/:noteId/redo", verifySession, async (req, res) => {
 
     await updateNoteVersion(noteId, nextVersion.content, nextVersion.id, userId);
     res.status(200).json({ noteId, content: nextVersion.content });
+    //emit redo state after a successful undo
+    io.emit("note_undo_redo_state", {
+      noteId,
+      userId,
+      canUndo: true,
+      canRedo: currentIndex + 2 < versions.length,
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to redo" });
     console.error("redo error", error);
