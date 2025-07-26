@@ -9,7 +9,6 @@ const prisma = new PrismaClient();
 //Helper function: getNoteAndRole-
 //This function retrieves a sticky note's: version history(in acsending order),current Version ID,
 // and the current users role(TA) for the course. It is going to be used in undo and redo routes
-
 async function getNoteAndRole(noteId, userId) {
   const note = await prisma.stickyNotes.findUnique({
       where: { id: noteId },
@@ -59,6 +58,10 @@ router.get("/:courseId", verifySession, async (req, res) => {
   try {
     const notes = await prisma.stickyNotes.findMany({
       where: { course_id: courseId },
+      include: {
+        currentVersion: true,
+        versions: true,
+      },
     });
     res.status(200).json(notes);
   } catch (error) {
@@ -84,6 +87,7 @@ router.post("/:noteId/save", verifySession, async (req, res) => {
         timestamp: new Date(),
       },
     });
+    console.log("print versions", version )
     const updatedNote = await prisma.stickyNotes.update({
       where: { id: noteId },
       data: {
@@ -94,6 +98,7 @@ router.post("/:noteId/save", verifySession, async (req, res) => {
       },
       include: { currentVersion: true },
     });
+    const currentIndex = version.id;
     io.emit("note_content_preview", {
       noteId,
       content,

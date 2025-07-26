@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-
+import Loading from "../components/loading";
+import "../assets/app.css";
 import "../assets/room.css";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -89,12 +90,14 @@ function TaRoom() {
           intervals: formattedIntervals,
         }),
       });
-      const data = await res.json();
+     await res.json();
     } catch (error) {
       setError(error);
       console.error("Error saving availability:", error);
     }
   };
+
+  if (loading)  return <Loading message = "Welcome to your Room, Loading ...."/>;
 
   return (
     <div className="container">
