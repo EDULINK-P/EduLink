@@ -1,0 +1,28 @@
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+  background-color: #0e0e2c;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 6px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #9a6aff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+.loading-text {
+  font-size: 24px;
+  opacity: 0.8;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

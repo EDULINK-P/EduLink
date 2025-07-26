@@ -10,11 +10,28 @@ const ProfileSetup = () => {
     { courseId: "", role: "" },
   ]);
   const [error, setError] = useState("");
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const { submitprofile, getcourse, courseOptions } = useAuth();
+  const [courseOptions, setCourseOptions] = useState([]);
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
-    getcourse();
+    const fetchCourses = async () => {
+      try {
+        const res = await fetch(`${BACKEND_URL}/courses`, {
+          credentials: "include",
+        });
+        if (!res.ok) {
+          throw new Error("Could not get courses");
+        }
+        const data = await res.json();
+        if (data.courses) setCourseOptions(data.courses);
+        return data;
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+      }
+    };
+    fetchCourses();
   }, []);
 
   const handleChange = (index, field, value) => {
@@ -37,13 +54,33 @@ const ProfileSetup = () => {
       return;
     }
 
-    const res = await submitprofile(selectedCourses);
-    if (res) {
-      alert("Profile setup successful");
-      navigate("/dashboard");
-    } else setError(res.error || "Profile setup failed");
-    setLoading(false);
-  };
+    try {
+      const res = await fetch(`${BACKEND_URL}/profile/setup`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courses: selectedCourses.map((c) => c.courseId),
+          roles: selectedCourses.map((c) => c.role),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Profile setup complete");
+        navigate("/dashboard");
+      } else {
+        setError(data.error);
+      }
+    } catch (error) {
+      console.error("Error setting up profile:", error);
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
 
   return (
     <div className="form-container">
@@ -82,6 +119,7 @@ const ProfileSetup = () => {
             </select>
           </div>
         ))}
+        {error && <p className="error-message">{error}</p>}
         <button
           className="form-button"
           type="submit"
