@@ -1,12 +1,38 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "../components/header";
 import { useNavigate } from "react-router-dom";
+import "../assets/blob.css"
 import "../assets/home.css";
 
 const Home = () => {
   const navigate = useNavigate();
 
   return (
+    <div className="bubble-container">
+      <div className="bubble bubble-1" ></div>
+      <div className="bubble bubble-2" ></div>
+      <div className="bubble bubble-3" ></div>
+      <div className="bubble bubble-4" ></div>
+      <div className="bubble bubble-5" ></div>
+      <div className="bubble bubble-6" ></div>
+      <div className="bubble bubble-7" ></div>
+      <div className="bubble bubble-8" ></div>
+
+      <div className="micro-bubble micro-1" ></div>
+      <div className="micro-bubble micro-2" ></div>
+      <div className="micro-bubble micro-3" ></div>
+      <div className="micro-bubble micro-4" ></div>
+      <div className="micro-bubble micro-5" ></div>
+
+      <div className="particle particle-1" ></div>
+      <div className="particle particle-2" ></div>
+      <div className="particle particle-3" ></div>
+      <div className="particle particle-4" ></div>
+      <div className="particle particle-5" ></div>
+      <div className="particle particle-6" ></div>
+      <div className="particle particle-7" ></div>
+      <div className="particle particle-8" ></div>
+      <div className="particle particle-9" ></div>
     <>
       <Header />
       <main className="main">
@@ -61,6 +87,7 @@ const Home = () => {
         </div>
       </main>
     </>
+    </div>
   );
 };
 

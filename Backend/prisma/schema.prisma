@@ -20,6 +20,7 @@ model User {
   hostedMeetings ZoomMeeting[]    @relation(name: "UserHostedMeetings")
   TAAvailability TAAvailability[]
   StudentRequest StudentRequest[]
+  StickyNotes    StickyNotes[]
 }
 
 model Course {
@@ -98,6 +99,8 @@ model StickyNotes {
   versions         StickyNoteVersion[] @relation("allVersions")
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
+  User             User?               @relation(fields: [userId], references: [id])
+  userId           Int?
 }
 
 model StickyNoteVersion {
