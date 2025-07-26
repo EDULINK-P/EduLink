@@ -1,125 +1,140 @@
 import { buildSchedule } from "../buildSchedule.js";
 
-const mockSessions = [
-  {
-    taId: 1,
-    day: "Monday",
-    startTime: "10:00",
-    endTime: "11:00",
-    rate: 15,
-    rating: 4.5,
-  },
-  {
-    taId: 2,
-    day: "Tuesday",
-    startTime: "14:00",
-    endTime: "15:00",
-    rate: 20,
-    rating: 4.7,
-  },
-  {
-    taId: 3,
-    day: "Wednesday",
-    startTime: "13:00",
-    endTime: "14:00",
-    rate: 15,
-    rating: 4.5,
-  },
-];
-
-describe("buildSchedule", () => {
-  it("Returns full schedule", () => {
-    const result = buildSchedule(mockSessions, {
-      sessionsPerWeek: 2,
-      weeklyBudget: 40,
-      maxSessionsPerDay: 2,
-    });
-    expect(result.sessions.length).toBe(2);
-    expect(result.totalCost).toBeLessThanOrEqual(40);
-    expect(result.fallBackUsed).toBe(false);
-  });
-
-  it("falls back to partial schedule if weeklyBudget is lower than total cost", () => {
-    const result = buildSchedule(mockSessions, {
+test("TC1: Multi-student scheduling (3 students, 3 TAs, no conflicts)", () => {
+  const students = [
+    {
+      id: "s1",
+      availability: [
+        { day: "Monday", interval: "13:00-16:00" },
+        { day: "Tuesday", interval: "13:00-16:00" },
+        { day: "Wednesday", interval: "17:00-18:00" },
+        { day: "Friday", interval: "09:00-13:00" },
+        { day: "Friday", interval: "16:00-17:00" },
+      ],
       sessionsPerWeek: 3,
-      weeklyBudget: 20,
       maxSessionsPerDay: 1,
-    });
-    expect(result.sessions.length).toBe(1);
-    expect(result.fallBackUsed).toBe(true);
-  });
-
-  it("returns empty schedule if no sessions are available", () => {
-    const result = buildSchedule([], {
+      weeklyBudget: 50,
+    },
+    {
+      id: "s2",
+      availability: [
+        { day: "Tuesday", interval: "15:00-18:00" },
+        { day: "Wednesday", interval: "15:00-18:00" },
+        { day: "Friday", interval: "12:00-17:00" },
+      ],
       sessionsPerWeek: 2,
+      maxSessionsPerDay: 2,
+      weeklyBudget: 50,
+    },
+    {
+      id: "s3",
+      availability: [
+        { day: "Friday", interval: "12:00-16:00" },
+      ],
+      sessionsPerWeek: 1,
+      maxSessionsPerDay: 1,
       weeklyBudget: 30,
-      maxSessionsPerDay: 1,
-    });
-    expect(result.sessions).toEqual([]);
-    expect(result.totalCost).toBe(0);
-    expect(result.totalRating).toBe(0);
-    expect(result.fallBackUsed).toBe(false);
-  });
+    },
+  ];
 
-  it("respects maxSessionsPerDay", () => {
-    const sessions = [
-      {
-        taId: 1,
-        day: "Monday",
-        startTime: "10:00",
-        endTime: "11:00",
-        rate: 15,
-        rating: 4.5,
-      },
-      {
-        taId: 2,
-        day: "Monday",
-        startTime: "11:00",
-        endTime: "12:00",
-        rate: 10,
-        rating: 4.7,
-      },
-      {
-        taId: 3,
-        day: "Monday",
-        startTime: "12:00",
-        endTime: "13:00",
-        rate: 15,
-        rating: 4.5,
-      },
-    ];
-    const result = buildSchedule(sessions, {
-      sessionsPerWeek: 3,
-      weeklyBudget: 40,
-      maxSessionsPerDay: 2,
-    });
-    expect(result.sessions.length).toBeLessThanOrEqual(2);
-  });
+  const taAvailabilities = [
+    {
+      id: "ta1",
+      user: { rating: 3 },
+      rate: 20,
+      intervals: [
+        { day: "Monday", interval: "12:00-14:00" },
+        { day: "Wednesday", interval: "15:00-16:00" },
+      ],
+    },
+    {
+      id: "ta2",
+      user: { rating: 5 },
+      rate: 30,
+      intervals: [
+        { day: "Monday", interval: "13:00-18:00" },
+        { day: "Friday", interval: "15:00-17:00" },
+      ],
+    },
+    {
+      id: "ta3",
+      user: { rating: 1 },
+      rate: 10,
+      intervals: [
+        { day: "Monday", interval: "09:00-13:00" },
+        { day: "Monday", interval: "16:00-18:00" },
+        { day: "Wednesday", interval: "09:00-18:00" },
+        { day: "Friday", interval: "16:00-17:00" },
+      ],
+    },
+  ];
 
-  it("skips overlapping sessions(same time)", () => {
-    const sessions = [
-      {
-        taId: 1,
-        day: "Monday",
-        startTime: "10:00",
-        endTime: "11:00",
-        rate: 15,
-        rating: 4.5,
-      },
-      {
-        taId: 2,
-        day: "Monday",
-        startTime: "10:00",
-        endTime: "11:00",
-        rate: 20,
-        rating: 4.7,
-      },
-    ];
-    const result = buildSchedule(sessions, {
-      sessionsPerWeek: 2,
-      weeklyBudget: 40,
-      maxSessionsPerDay: 2,
-    });
-    expect(result.sessions.length).toBe(1);
-  });
+  const expectedSessions = [
+    {
+      studentId: "s1",
+      taId: "ta2",
+      day: "Monday",
+      start: "13:00",
+      end: "14:00",
+      rate: 30,
+      rating: 5,
+    },
+    {
+      studentId: "s1",
+      taId: "ta3",
+      day: "Wednesday",
+      start: "17:00",
+      end: "18:00",
+      rate: 10,
+      rating: 1,
+    },
+    {
+      studentId: "s1",
+      taId: "ta3",
+      day: "Friday",
+      start: "16:00",
+      end: "17:00",
+      rate: 10,
+      rating: 1,
+    },
+    {
+      studentId: "s2",
+      taId: "ta1",
+      day: "Wednesday",
+      start: "15:00",
+      end: "16:00",
+      rate: 20,
+      rating: 3,
+    },
+    {
+      studentId: "s2",
+      taId: "ta2",
+      day: "Friday",
+      start: "16:00",
+      end: "17:00",
+      rate: 30,
+      rating: 5,
+    },
+    {
+      studentId: "s3",
+      taId: "ta2",
+      day: "Friday",
+      start: "15:00",
+      end: "16:00",
+      rate: 30,
+      rating: 5,
+    },
+  ];
+
+  const schedule = buildSchedule(students, taAvailabilities);
+
+  // Flatten the schedule to match the expected format
+  const actualSessions = schedule.flatMap(studentSchedule =>
+    studentSchedule.sessions.map(session => ({
+      studentId: studentSchedule.studentId,
+      ...session,
+    }))
+  );
+
+  expect(actualSessions).toEqual(expectedSessions);
 });
