@@ -13,7 +13,8 @@ import profileRouter from "./Routes/profile.js";
 import zoomRoutes from "./Routes/zoom.js";
 import availabilityRoutes from "./Routes/TAavailability.js";
 import studentRequests from "./Routes/studentRequest.js";
-import schedulerRouter from "./Routes/scheduler.js";
+import passport from "./config/passport.js";
+// import schedulerRouter from "./Routes/scheduler.js";
 import noteRouter from "./Routes/notes.js";
 
 dotenv.config();
@@ -50,7 +51,7 @@ const sessionMiddleware = session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     httpOnly: true,
     maxAge: 6000 * 60 * 60 * 24,
     sameSite: "lax"
@@ -78,7 +79,7 @@ app.use("/profile", profileRouter);
 app.use("/api", zoomRoutes);
 app.use("/availability", availabilityRoutes);
 app.use("/student-requests", studentRequests);
-app.use("/schedule", schedulerRouter);
+// app.use("/schedule", schedulerRouter);
 app.use("/notes", noteRouter);
 
 //Note locking memory store(in-memory, not in DB)
@@ -103,7 +104,7 @@ io.on("connection", (socket) => {
       });
       //Broadcast to all users in that course
       io.to(`course:${courseId}`).emit("newNote", newNote);
-      //emit disabled undo/redo state when a new note is created 
+      //emit disabled undo/redo state when a new note is created
       io.emit("note_undo_redo_state", {
         noteId: newNote.id,
         userId,
