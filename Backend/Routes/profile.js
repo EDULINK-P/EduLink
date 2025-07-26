@@ -82,6 +82,7 @@ router.get("/dashboard", verifySession, async (req, res) => {
     const courses = user.userCourse.map((uc) => ({
       courseName: uc.course.name,
       role: uc.role,
+      courseId: uc.course.id,
     }));
     res.status(200).json({
       message: "Profile fetched successfully",

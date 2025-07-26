@@ -1,0 +1,152 @@
+/* Background Container */
+.bubble-container {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 20% 80%, #2a0d43 0%, #14082d 40%, #0a031b 100%);
+  background-size: 400% 400%;
+  animation: cosmicShift 12s ease infinite;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Soft shimmer overlay */
+.bubble-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255,255,255,0.025) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(255,255,255,0.02) 0%, transparent 50%);
+  animation: shimmer 10s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Keyframes */
+@keyframes cosmicShift {
+  0%, 100% { background-position: 0% 50%; filter: hue-rotate(0deg); }
+  50% { background-position: 100% 50%; filter: hue-rotate(180deg); }
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.15; transform: scale(1); }
+  50% { opacity: 0.2; transform: scale(1.05); }
+}
+
+@keyframes hypnoticFloat {
+  0% { transform: translate(0, 0) scale(0.8) rotate(0); opacity: 0.2; filter: blur(6px); }
+  50% { transform: translate(80px, -120px) scale(1.4) rotate(180deg); opacity: 0.35; filter: blur(8px); }
+  100% { transform: translate(0, 0) scale(0.8) rotate(360deg); opacity: 0.2; filter: blur(6px); }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.05; transform: scale(0.8); }
+  50% { opacity: 0.08; transform: scale(1.1); }
+}
+
+@keyframes microFloat {
+  0%, 100% { transform: translateY(0) scale(0.5); opacity: 0.1; }
+  50% { transform: translateY(-20px) scale(1); opacity: 0.2; }
+}
+
+@keyframes particleFloat {
+  0% { transform: translateY(100vh) scale(0); opacity: 0; }
+  10% { opacity: 0.1; transform: scale(1); }
+  90% { opacity: 0.1; }
+  100% { transform: translateY(-100px) scale(0); opacity: 0; }
+}
+
+/* Main bubbles */
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(10px) brightness(0.6) saturate(0.8);
+  animation: hypnoticFloat 8s ease-in-out infinite;
+  z-index: 1;
+}
+
+.bubble::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  width: 30%;
+  height: 30%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: sparkle 3s ease-in-out infinite;
+}
+
+/* Bubble presets (dimmer color tones) */
+.bubble-1 {
+  width: 200px; height: 200px; top: 8%; left: 3%;
+  background: conic-gradient(from 45deg, #440049, #023e3e, #4a2c2a, #1e1b4b, #440049);
+}
+.bubble-2 {
+  width: 240px; height: 240px; top: 25%; right: 2%;
+  background: conic-gradient(from 120deg, #14213d, #3a0ca3, #2b2d42, #3c096c, #14213d);
+}
+.bubble-3 {
+  width: 180px; height: 180px; bottom: 12%; left: 15%;
+  background: conic-gradient(from 240deg, #1d3557, #560bad, #0f4c5c, #3f37c9, #1d3557);
+}
+.bubble-4 {
+  width: 220px; height: 220px; bottom: 5%; right: 8%;
+  background: conic-gradient(from 300deg, #2a0944, #1a1a40, #3c096c, #001f54, #2a0944);
+}
+.bubble-5 {
+  width: 280px; height: 280px; top: 45%; left: 45%;
+  background: conic-gradient(from 0deg, #0f172a, #1e293b, #334155, #475569, #0f172a);
+}
+.bubble-6 {
+  width: 160px; height: 160px; top: 15%; left: 65%;
+  background: conic-gradient(from 180deg, #2e1065, #1e3a8a, #0c4a6e, #1e1b4b, #2e1065);
+}
+.bubble-7 {
+  width: 220px; height: 220px; bottom: 35%; right: 25%;
+  background: conic-gradient(from 60deg, #3c096c, #1a1a40, #2a0944, #0f4c5c, #3c096c);
+}
+.bubble-8 {
+  width: 180px; height: 180px; top: 65%; left: 8%;
+  background: conic-gradient(from 270deg, #0b132b, #1c2541, #3a506b, #5bc0be, #0b132b);
+}
+
+/* Tiny shimmer bubbles */
+.micro-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+  animation: microFloat 4s ease-in-out infinite;
+  z-index: 2;
+}
+.micro-1 { width: 18px; height: 18px; top: 30%; left: 25%; }
+.micro-2 { width: 14px; height: 14px; top: 60%; left: 70%; }
+.micro-3 { width: 22px; height: 22px; top: 20%; right: 40%; }
+.micro-4 { width: 16px; height: 16px; bottom: 40%; left: 60%; }
+.micro-5 { width: 20px; height: 20px; bottom: 20%; right: 15%; }
+
+/* Floating particles */
+.particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: particleFloat 7s linear infinite;
+  z-index: 3;
+}
+.particle-1 { left: 10%; animation-delay: 0s; }
+.particle-2 { left: 20%; animation-delay: 1s; }
+.particle-3 { left: 30%; animation-delay: 2s; }
+.particle-4 { left: 40%; animation-delay: 3s; }
+.particle-5 { left: 50%; animation-delay: 4s; }
+.particle-6 { left: 60%; animation-delay: 5s; }
+.particle-7 { left: 70%; animation-delay: 1.5s; }
+.particle-8 { left: 80%; animation-delay: 2.5s; }
+.particle-9 { left: 90%; animation-delay: 3.5s; }
+
+/* Optional fallback background */
+body, html {
+  background: #09090b;
+}
