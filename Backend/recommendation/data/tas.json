@@ -1,0 +1,31 @@
+[
+  {
+    "id": "ta1",
+    "user": { "rating": 3 },
+    "rate": 20,
+    "intervals": [
+      { "day": "Monday", "interval": "12:00-14:00" },
+      { "day": "Wednesday", "interval": "15:00-16:00" }
+    ]
+  },
+  {
+    "id": "ta2",
+    "user": { "rating": 5 },
+    "rate": 30,
+    "intervals": [
+      { "day": "Monday", "interval": "13:00-18:00" },
+      { "day": "Friday", "interval": "15:00-17:00" }
+    ]
+  },
+  {
+    "id": "ta3",
+    "user": { "rating": 1 },
+    "rate": 10,
+    "intervals": [
+      { "day": "Monday", "interval": "09:00-13:00" },
+      { "day": "Monday", "interval": "16:00-18:00" },
+      { "day": "Wednesday", "interval": "09:00-18:00" },
+      { "day": "Friday", "interval": "16:00-17:00" }
+    ]
+  }
+]
