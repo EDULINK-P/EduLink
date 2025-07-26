@@ -2,6 +2,8 @@ import React, { useState, useEffect, use } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import StudentRequestModal from "../components/studentRequestModal";
 import BestScheduleModal from "../components/BestScheduleModal";
+import Loading from "../components/loading";
+import "../assets/app.css";
 import "../assets/room.css";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -13,11 +15,13 @@ function StudentRoom() {
   const [showModal, setShowModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [userCredits, setUserCredits] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMeeting = async () => {
+      setLoading(false);
       try {
         const res = await fetch(`${BACKEND_URL}/api/meeting/${courseId}`, {
           credentials: "include",
@@ -85,6 +89,8 @@ function StudentRoom() {
       console.error("Error Submitting Request", error);
     }
   };
+
+  if (loading)  return <Loading message = "Welcome to your Room, Loading ...."/>;
 
   return (
     <div className="container">

@@ -39,20 +39,35 @@ router.get("/tas/:courseId", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const userId = req.session.userId;
-  const { courseId, intervals, sessionsPerWeek, maxSessionsPerDay, weeklyBudget} = req.body;
+  const { courseId, students} = req.body;
+  if (!Array.isArray(students) || students.length === 0){
+    res.status(400).json({ error: "At least one student is required."});
+    return;
+  }
   try {
-    const student = await prisma.studentRequest.create({
-      data: {
-        user_id: userId,
-        course_id: parseInt(courseId),
-        sessionsPerWeek: parseInt(sessionsPerWeek),
-        maxSessionsPerDay: parseInt(maxSessionsPerDay),
-        weeklyBudget: parseInt(weeklyBudget),
-        intervals: intervals.map(({day, interval}) => ({ day, interval})
-        ),
-      },
-    });
-    res.status(200).json({ student});
+    const course_id = parseInt(courseId);
+    const createRequests = []
+    for (const student of students) {
+      const studentId = parseInt(student.userId);
+      await prisma.studentRequest.deleteMany({
+        where: {
+          user_id: studentId,
+          course_id,
+        },
+      });
+      const newRequest = await prisma.studentRequest.create({
+        data: {
+          user_id: studentId,
+          course_id,
+          intervals: student.intervals,
+          sessionsPerWeek: parseInt(student.sessionsPerWeek),
+          maxSessionsPerDay: parseInt(student.maxSessionsPerDay),
+          weeklyBudget: parseInt(student.weeklyBudget),
+        },
+      });
+      createRequests.push(newRequest);
+    }
+    return res.status(200).json({createRequests})
   } catch (error) {
     console.error("Error creating student request:", error);
     res.status(500).json({ error: "Failed to create student request" });

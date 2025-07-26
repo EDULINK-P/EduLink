@@ -27,6 +27,8 @@ import {
   getAllLocalNotes,
 } from "../utils/noteCache.js";
 import { useAuth } from "../context/authContext";
+import Loading from "../components/loading";
+import "../assets/app.css";
 import "../assets/stickyNoteRoom.css";
 import { NetworkStatusContext } from "../context/NetworkStatusContext.jsx";
 
@@ -45,6 +47,7 @@ const StickyNoteRoom = () => {
   const [noteHistory, setNoteHistory] = useState({});
   const [noteIndex, setNoteIndex] = useState({});
   const [pendingEditingNoteId, setPendingEditingNoteId] = useState(null);
+  const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const currentUserId = user?.id;
   const { isOnline } = useContext(NetworkStatusContext);
@@ -79,7 +82,7 @@ const StickyNoteRoom = () => {
   }
 
   //Push offline edits to server when reconnected
-  async function syncOfflineNotes(courseId, handleBlur) {
+  async function syncOfflineNotes() {
     const offlineNotes = getAllLocalNotes();
     for (const [noteId, note] of Object.entries(offlineNotes)) {
       if (note.editedOffline) {
@@ -115,6 +118,7 @@ const StickyNoteRoom = () => {
           credentials: "include",
         });
         const data = await response.json();
+        setLoading(false);
         //merge each with local version
         const merged = data.map((note) => {
           const local = getLocalNote(note.id);
@@ -154,7 +158,7 @@ const StickyNoteRoom = () => {
   //Sync when going online
   useEffect(() => {
     if (isOnline) {
-      syncOfflineNotes(courseId, handleBlur);
+      syncOfflineNotes(courseId);
     }
   }, [isOnline, courseId]);
 
@@ -453,6 +457,9 @@ const StickyNoteRoom = () => {
     });
   }, [currentUserId]);
 
+  //Loading state
+  if (loading)  return <Loading message = "Welcome to your Room, Loading ...."/>;
+  
   return (
     <div className="container">
       <div className="header">
